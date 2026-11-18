@@ -19,15 +19,6 @@ enum ScreenWork {
         var fromAI: Bool { drafts.contains { $0.fromAI } }
     }
 
-    static func pieces(_ image: CGImage) async -> [ScreenPiece] {
-        let w = Double(image.width), h = Double(image.height)
-        guard w > 0, h > 0 else { return [] }
-        return await TextScan.fragments(in: image).map { f in
-            ScreenPiece(text: f.text, minX: Double(min(f.topLeft.x, f.bottomLeft.x)) / w, maxX: Double(max(f.topRight.x, f.bottomRight.x)) / w,
-                        top: 1 - Double(max(f.topLeft.y, f.topRight.y)) / h)
-        }
-    }
-
     static func external(_ data: AppData, around day: DayKey) -> [Entry] {
         if let s = Store.live { return s.external }
         return data.settings.calendarOn ? CalendarService.shared.entries(from: day, days: 8, hidden: data.settings.hiddenCalendars) : []
@@ -36,7 +27,7 @@ enum ScreenWork {
     static func run(image: CGImage?, text: String?, polish: Bool = true) async -> Out {
         let now = IntentData.now
         var read: ScreenRead = .nothing
-        if let image { read = ScreenRules.read(await pieces(image), now: now) }
+        if let image { read = ScreenRules.read(await TextScan.pieces(in: image), now: now) }
         if read == .nothing, let t = text, t.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 { read = ScreenRules.read(text: t, now: now) }
         guard case .offer(let message) = read, let offer = ReplyRules.offer(from: message, now: now) else { return Out(read: read) }
         let data = IntentData.read()

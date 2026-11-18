@@ -78,6 +78,16 @@ enum TextScan {
         lines(from: await fragments(in: image))
     }
 
+    /// 글자 조각을 화면 크기에 대한 비율 자리로 (화면 그대로 · 공유 확장)
+    static func pieces(in image: CGImage) async -> [ScreenPiece] {
+        let w = Double(image.width), h = Double(image.height)
+        guard w > 0, h > 0 else { return [] }
+        return await fragments(in: image).map { f in
+            ScreenPiece(text: f.text, minX: Double(min(f.topLeft.x, f.bottomLeft.x)) / w, maxX: Double(max(f.topRight.x, f.bottomRight.x)) / w,
+                        top: 1 - Double(max(f.topLeft.y, f.topRight.y)) / h)
+        }
+    }
+
     /// Vision 글자 인식 (정확도 우선 · 한국어+영어 · 언어 보정 켬).
     static func fragments(in image: CGImage) async -> [Fragment] {
         var request = RecognizeTextRequest()

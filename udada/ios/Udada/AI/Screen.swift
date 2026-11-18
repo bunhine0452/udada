@@ -59,9 +59,8 @@ enum ScreenRules {
             if single { return .offer(got[i]) }
             i -= 1
         }
-        // 대화 화면이면 내가 한 말은 챙길 일로 읽지 않는다
-        let mixed = all.contains(where: isMine)
-        let lines = CaptureRules.lines((mixed ? got : all.map(\.text)).joined(separator: "\n"), now: now, calendar: calendar)
+        // 제안이 없으면 화면에 적힌 일정을 그대로 챙긴다. 나와의 채팅처럼 내가 적어 둔 것도 일정이다.
+        let lines = events(all.map(\.text), now: now, calendar: calendar)
         return lines.isEmpty ? .nothing : .lines(lines)
     }
 
@@ -69,8 +68,66 @@ enum ScreenRules {
     static func read(text: String, now: Date, calendar: Calendar = .current) -> ScreenRead {
         let t = text.precomposedStringWithCanonicalMapping.trimmingCharacters(in: .whitespacesAndNewlines)
         if ReplyRules.offer(from: t, now: now, calendar: calendar) != nil { return .offer(t) }
-        let lines = CaptureRules.lines(t, now: now, calendar: calendar)
+        guard !isJunk(t) else { return .nothing }
+        let lines = events(t.components(separatedBy: .newlines), now: now, calendar: calendar)
         return lines.isEmpty ? .nothing : .lines(lines)
+    }
+
+    /// 화면의 껍데기: 파일 카드(용량 · 유효기간 · 파일 이름), 날짜 가름줄, 숫자뿐인 줄
+    private static let chrome = rx("용량|[0-9]\\s?(MB|KB|GB|TB)\\b|^유효\\s?기간|만료일|\\.(pdf|jpe?g|png|zip|hwp|docx?|xlsx?|pptx?|mp4|mov)\\b|^\\d{4}년\\s?\\d{1,2}월\\s?\\d{1,2}일\\s?.요일\\s?[>›]?$")
+    private static let weekday = rx("[월화수목금토일]요일|오전|오후|[>›<~·]")
+
+    /// 일정으로 넣어도 되는 줄만: 때가 읽히고, 이름이 있고, 지난 날이 아니고, 화면 껍데기가 아닌 것
+    /// strict 가 아니면 때가 없는 줄(손으로 쓴 할 일 목록 같은)은 그대로 둔다.
+    static func keep(_ lines: [String], strict: Bool = true, now: Date, calendar: Calendar = .current) -> [String] {
+        let today = DayKey(now, calendar: calendar)
+        var seen = Set<String>(), out: [String] = []
+        for raw in lines {
+            let l = raw.precomposedStringWithCanonicalMapping.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard l.count >= 3, !has(chrome, l), !isJunk(l) else { continue }
+            let p = Parser.parse(l, now: now, calendar: calendar)
+            guard p.day != nil || p.time != nil else {
+                if !strict, seen.insert(l).inserted { out.append(l) }
+                continue
+            }
+            if let d = p.day, d < today { continue }
+            let name = weekday.stringByReplacingMatches(in: p.title, range: NSRange(p.title.startIndex..., in: p.title), withTemplate: "")
+            guard name.filter({ $0.isLetter }).count >= 2 else { continue }
+            let key = "\(p.day.map { "\($0)" } ?? "")|\(p.time ?? -1)|\(name.filter { $0.isLetter || $0.isNumber })"
+            if seen.insert(key).inserted { out.append(l) }
+        }
+        return out
+    }
+
+    /// 읽은 줄들 → 챙길 일정 줄 (받은 글 규칙이 고르고, 위의 검사로 거른다)
+    static func events(_ lines: [String], now: Date, calendar: Calendar = .current) -> [String] {
+        let picked = CaptureRules.lines(lines.joined(separator: "\n"), now: now, calendar: calendar)
+        return keep(picked, now: now, calendar: calendar)
+    }
+
+    /// 줄 → 넣을 일. 이미 같은 이름 · 같은 날 · 같은 시각으로 있는 것은 뺀다.
+    static func items(from lines: [String], data: AppData, now: Date, calendar: Calendar = .current) -> [Item] {
+        let today = DayKey(now, calendar: calendar)
+        var out: [Item] = []
+        for l in lines {
+            let p = Parser.parse(l, now: now, calendar: calendar)
+            let title = p.title.trimmingCharacters(in: CharacterSet(charactersIn: " ·,.~")).isEmpty ? l : p.title
+            let day = p.day ?? today
+            let part = p.time.map { data.settings.parts.part(at: $0) } ?? p.part ?? .afternoon
+            let item = Item(title: String(title.prefix(60)), day: day, part: part, time: p.time, duration: p.duration ?? (p.time == nil ? 30 : 60), created: now)
+            let same: (Item) -> Bool = { $0.title == item.title && $0.day == item.day && $0.time == item.time }
+            if !data.items.contains(where: same), !out.contains(where: same) { out.append(item) }
+        }
+        return out
+    }
+
+    /// 넣은 것을 알리는 한 줄: "11/21 15:00 강남역에서 만나 · 내일 밥먹기"
+    static func summary(_ items: [Item], today: DayKey, calendar: Calendar = .current) -> String {
+        items.prefix(4).map { i in
+            var when = i.day.map { ReplyRules.dayWord($0, today: today) } ?? ""
+            if let t = i.time { when += String(format: " %d:%02d", t / 60, t % 60) }
+            return when.isEmpty ? i.title : "\(when) \(i.title)"
+        }.joined(separator: " · ") + (items.count > 4 ? " · 그리고 \(items.count - 4)개" : "")
     }
 
     /// 자동으로 넘어온 글 가운데 챙길 일이 아닌 것: 인증번호 · 광고 · 카드 승인 · 배송 알림

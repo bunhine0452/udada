@@ -32,9 +32,36 @@ final class ScreenTests: XCTestCase {
 
     func testMyOwnQuestionIsNotAnOffer() {
         let pieces = [theirs("주말에 뭐 해", 0.3), mine("토요일 3시에 영화 어때?", 0.4)]
-        let r = ScreenRules.read(pieces, now: now, calendar: cal)
-        if case .offer = r { XCTFail("내가 보낸 제안에 답장을 쓰지 않는다") }
-        if case .lines(let l) = r { XCTAssertFalse(l.contains { $0.contains("영화") }, "내가 한 말은 챙길 일이 아니다") }
+        if case .offer = ScreenRules.read(pieces, now: now, calendar: cal) { XCTFail("내가 보낸 제안에 답장을 쓰지 않는다") }
+    }
+
+    /// 사용자가 보낸 실제 화면(나와의 채팅): 파일 카드와 날짜 가름줄은 일정이 아니고, 내가 적어 둔 세 줄만 일정이다.
+    func testSelfChatWithFileCards() {
+        func p(_ t: String, _ top: Double, _ a: Double, _ b: Double) -> ScreenPiece { ScreenPiece(text: t, minX: a, maxX: b, top: top) }
+        let pieces = [
+            p("22:58 A", 0.03, 0.11, 0.29), p("01 5G", 0.03, 0.68, 0.81),
+            p("사업자등록 신청서.pdf", 0.31, 0.29, 0.64), p("유효기간 2026. 11. 27.", 0.34, 0.30, 0.64), p("용량 7.7 MB", 0.36, 0.30, 0.47),
+            p("이오름 통신판매업 신고증.pdf", 0.41, 0.29, 0.74), p("유효기간 ~2026. 11. 27.", 0.44, 0.30, 0.64), p("용량 344 KB", 0.47, 0.30, 0.49),
+            p("사업자등록증.pdf", 0.52, 0.29, 0.56), p("유효기간 ~2026. 11. 27.", 0.54, 0.30, 0.64), p("용량 124 KB", 0.57, 0.30, 0.48),
+            p("10:16", 0.70, 0.20, 0.27), p("2026년 11월 18일 수요일>", 0.74, 0.33, 0.68),
+            p("내일 밥먹기", 0.79, 0.77, 0.95), p("11월 20일 계획1", 0.83, 0.70, 0.95), p("22:44", 0.85, 0.59, 0.67),
+            p("11월21일 오후3시에 강남역에서 만나", 0.88, 0.40, 0.95), p("22:45", 0.90, 0.30, 0.38),
+            p("메시지 입력", 0.93, 0.16, 0.34), p("새익 추가해요", 0.98, 0.32, 0.52),
+        ]
+        guard case .lines(let l) = ScreenRules.read(pieces, now: now, calendar: cal) else { return XCTFail("줄을 못 뽑음") }
+        XCTAssertEqual(l, ["내일 밥먹기", "11월 20일 계획1", "11월21일 오후3시에 강남역에서 만나"])
+        let items = ScreenRules.items(from: l, data: AppData(), now: now, calendar: cal)
+        XCTAssertEqual(items.map(\.day), [DayKey(y: 2026, m: 11, d: 19), DayKey(y: 2026, m: 11, d: 20), DayKey(y: 2026, m: 11, d: 21)])
+        XCTAssertEqual(items.map(\.time), [nil, nil, 15 * 60])
+        XCTAssertEqual(items[2].title, "강남역에서 만나")
+        // 두 번 공유해도 겹쳐 넣지 않는다
+        var d = AppData(); d.items = items
+        XCTAssertTrue(ScreenRules.items(from: l, data: d, now: now, calendar: cal).isEmpty)
+    }
+
+    func testKeepDropsPastAndNameless() {
+        let l = ScreenRules.keep(["2026.06.17 신규가입", "11월 25일", "11월 25일 건강검진", "용량 7.7 MB"], now: now, calendar: cal)
+        XCTAssertEqual(l, ["11월 25일 건강검진"])
     }
 
     func testLatestOfferWins() {

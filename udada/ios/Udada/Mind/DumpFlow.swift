@@ -157,7 +157,9 @@ struct DumpFlow: View {
                 if !ocr.isEmpty {
                     let seen = await Brain.shared.readPhoto(cg, ocr: ocr)
                     // 대화 캡처처럼 일정표가 아닌 그림은 읽은 글자를 '받은 글'로 다시 본다
-                    let lines = seen.fromAI ? seen.lines : (await Brain.shared.capture(ocr.joined(separator: "\n"), now: store.now)).lines
+                    let raw = seen.fromAI ? seen.lines : (await Brain.shared.capture(ocr.joined(separator: "\n"), now: store.now)).lines
+                    // 파일 카드 · 날짜 가름줄 · 지난 날짜 같은 화면 껍데기는 일정이 아니다
+                    let lines = ScreenRules.keep(raw, strict: false, now: store.now)
                     append(lines, from: "받은 사진에서 찾음"); found += lines.count
                 }
             } else if AudioNotes.isAudio(url) {
