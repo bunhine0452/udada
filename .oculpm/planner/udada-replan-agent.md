@@ -12,17 +12,22 @@ owner: claude-code
 **확인 명령:** cd udada/ios && Eval/run.sh replan-verdict | tail -2
 
 ## 규칙과 도구 {#core}
-- [ ] 한 주의 짐 보기·검사·규칙 대체 {#rules}
-- [ ] 모델 도구 둘과 옮길 안 받기 {#tools}
-- [ ] 실제 모델로 재는 묶음과 채점기 {#eval}
+- [x] 한 주의 짐 보기·검사·규칙 대체 {#rules}
+- [x] 모델 도구 둘과 옮길 안 받기 {#tools}
+- [x] 실제 모델로 재는 묶음과 채점기 {#eval}
 
 ## 화면 {#ui}
-- [ ] 보는 과정·전후 그림·적용 화면 {#view}
-- [ ] 넣기 줄·AI 판·넘치는 칸에서 열기 {#entry}
+- [x] 보는 과정·전후 그림·적용 화면 {#view}
+- [x] 넣기 줄·AI 판·넘치는 칸에서 열기 {#entry}
 - [~] 묶음으로 고치고 처음 보는 묶음 판정 {#tune}
 
 <!-- oculpm:plan-log begin v1 -->
 | 시각 | 항목 | 에이전트 | 변화 | 일지 | 메모 |
 |---|---|---|---|---|---|
 | 2026-11-18T19:55:37+09:00 | #tune | claude-code | ☐→~ | journal/20261118/Features_to_add/1955_feature_udada-replan-tool-calling.md | 판정 ✗ replan 판정: 넘침 풀림 7/9 (77%) · 모델만으로 6/9 · 비우기 2/2 · 지키라는 일 건드림 0 · 필요 없는 옮김 0 · 때가 걸린 일을 미룸 3 (규칙만 8/9 · 3 — 모델이 규칙보다 낫지 않다) · mac |
+| 2026-11-18T19:55:55+09:00 | #rules | claude-code | ☐→x |  | Executed 68 tests, with 0 failures (규칙 테스트 8개) |
+| 2026-11-18T19:55:58+09:00 | #tools | claude-code | ☐→x |  | 도구 둘 + 사실을 넣어 주는 두 번째 길. 모델은 번호만 가른다 |
+| 2026-11-18T19:56:01+09:00 | #eval | claude-code | ☐→x |  | 조정용 10 · 판정용 12 묶음과 채점기 |
+| 2026-11-18T19:56:04+09:00 | #view | claude-code | ☐→x |  | 시뮬레이터에서 실제 모델로 두 상황 확인 · UI 테스트 통과 |
+| 2026-11-18T19:56:07+09:00 | #entry | claude-code | ☐→x |  | 넣기 줄 · 말로 하기 · AI 판 · 넘치는 칸 버튼 · 딥링크. Mac·Siri 는 없음 |
 <!-- oculpm:plan-log end -->
