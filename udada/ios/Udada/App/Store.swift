@@ -27,6 +27,10 @@ final class Store {
     var splitting: SplitRequest?
     /// 받은 약속에 답장을 띄운다
     var reply: ReplyRequest?
+    /// 방금 복사한 글에 약속이 보인다 (넣기 줄 위 한 줄)
+    var clipHint = false
+    /// 화면 그대로: 해 보기와 거는 법
+    var showScreenSetup = false
     /// 한 주 풀기를 띄운다 (말이 있으면 그 말로 바로 시작)
     var replan: ReplanRequest?
     /// Apple Intelligence 둘러보기(움직이는 장면)를 띄운다

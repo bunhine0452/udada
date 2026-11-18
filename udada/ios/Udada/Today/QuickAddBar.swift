@@ -98,6 +98,7 @@ struct QuickAddBar: View {
     var body: some View {
         VStack(spacing: 10) {
             if open { panel.transition(.move(edge: .bottom).combined(with: .opacity)) }
+            if store.clipHint, !open { ClipChip().transition(.opacity) }
             HStack(alignment: .bottom, spacing: 8) {
                 aiButton
                 field

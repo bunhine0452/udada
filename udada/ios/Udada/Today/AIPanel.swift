@@ -43,21 +43,11 @@ struct AIPanel: View {
                 row("text.bubble", "물어보거나 시키기", "“다음 주 병원 언제야” · “치과 내일로 미뤄”", id: "ai.ask") {
                     store.cover = .find
                 }
+                row("rectangle.dashed.badge.record", "화면 그대로", "카톡 · 문자를 보던 화면에서 바로 — 받은 약속에 답장, 예약 안내는 받아 두기", id: "ai.screen") {
+                    store.showScreenSetup = true
+                }
                 row("doc.on.clipboard", "받은 글 붙여넣기", "“금요일 7시 어때?”면 내 일정 보고 답장까지 · 공지면 챙길 것만", id: "ai.paste") {
-                    guard let t = UIPasteboard.general.string, t.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 else {
-                        store.show("복사해 둔 글이 없어")
-                        return
-                    }
-                    // 약속을 묻는 글이면 내 일정을 보고 답장을 쓴다
-                    if ReplyRules.looksLikeOffer(t, now: store.now) {
-                        store.reply = ReplyRequest(text: t.trimmingCharacters(in: .whitespacesAndNewlines))
-                        return
-                    }
-                    Inbox.put(text: t)
-                    store.inboxCount = Inbox.items().count
-                    store.takeInbox = true
-                    store.dumpMode = .text
-                    store.cover = .dump
+                    store.takeClipboard()
                 }
                 row("waveform", "Siri에게 시키기", "“우다다한테 시키기” · “우다다로 정리해 줘”", id: "ai.siri") {
                     AITour.openAt = 6

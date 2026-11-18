@@ -115,6 +115,7 @@ targets:
       - path: Udada/AI/Replan.swift
       - path: Udada/AI/LiveDump.swift
       - path: Udada/AI/Reply.swift
+      - path: Udada/AI/Screen.swift
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

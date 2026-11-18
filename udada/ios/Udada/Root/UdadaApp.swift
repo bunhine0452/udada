@@ -28,12 +28,19 @@ struct UdadaApp: App {
                     guard p == .active else { return }
                     store.reload()
                     refreshSystem()
+                    store.checkClipboard()
                     // 위젯이 바꾼 것을 챙기고, 다른 기기에서 온 것을 바로 받는다
                     CloudSync.shared.refresh()
                 }
                 .task {
                     // 첫 화면이 뜬 다음에 — 앱 시작을 무겁게 하지 않게
                     try? await Task.sleep(for: .milliseconds(700))
+                    store.checkClipboard()
+                    // 확인용(-udScreen <그림 파일>): 그 스크린샷을 '화면 그대로'로 읽는다
+                    let args = ProcessInfo.processInfo.arguments
+                    if let i = args.firstIndex(of: "-udScreen"), i + 1 < args.count, let ui = UIImage(contentsOfFile: args[i + 1]) {
+                        await store.readScreen(ui)
+                    }
                     // 꺼진 사이 남은 식히기 시계는 정리 (돌던 집중은 이어진다)
                     if store.data.activeFocus == nil { LiveActivity.end() }
                     refreshSystem()
@@ -104,6 +111,9 @@ struct RootView: View {
         // 한 주 풀기 — 다른 덮개와 겹치지 않게 따로 건다
         .background {
             Color.clear.fullScreenCover(item: $store.replan) { r in ReplanView(request: r).environment(store) }
+        }
+        .background {
+            Color.clear.sheet(isPresented: $store.showScreenSetup) { ScreenSetupView().environment(store) }
         }
         // 줄 메뉴의 '작게 쪼개기' (오늘 · 달력 어디서든)
         .sheet(item: $store.splitting) { r in BreakdownSheet(request: r) {}.environment(store) }
