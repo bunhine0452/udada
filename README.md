@@ -83,7 +83,8 @@ udada/ios/scripts/nightly.sh            # udada/ios/build/nightly/ 에 zip
 ```
 
 - iCloud 권한 없이 서명합니다. 기록은 그 Mac 에만 남고, App Store 판과 저장소도 따로입니다(번들 ID `…udada.nightly`).
-- 공증(notarization)을 하지 않았습니다. 처음 열 때 시스템 설정 → 개인정보 보호 및 보안에서 "그래도 열기"를 눌러야 합니다.
+- 릴리스에 올리는 빌드는 Developer ID 로 서명하고 Apple 공증(notarization)을 받았습니다. 내려받아 바로 열 수 있습니다.
+- 직접 만든 빌드는 공증이 없어서, 처음 열 때 시스템 설정 → 개인정보 보호 및 보안에서 "그래도 열기"를 눌러야 합니다. (자기 Developer ID 가 있으면 `NIGHTLY_IDENTITY="Developer ID Application: …" NIGHTLY_NOTARIZE=1` 로 공증까지 됩니다.)
 - iPhone 판은 서명 때문에 nightly 로 배포하지 않습니다. App Store 판을 쓰거나 위 방법으로 직접 빌드하세요.
 
 ## 소개 영상은 어떻게 만들었나
