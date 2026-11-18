@@ -19,7 +19,7 @@ owner: claude-code
 - [ ] 위젯도 같은 테마로 {#theme-widgets}
 
 ## Mac 에서 확인되는 것 {#mac-checkable}
-- [ ] 쏟아내는 동안 카드가 하나씩 {#stream}
+- [~] 쏟아내는 동안 카드가 하나씩 {#stream}
 - [ ] 표가 있는 문서 읽기 (문서 인식) {#tables}
 
 ## iPhone 전용 (빌드까지) {#phone-only}
@@ -31,4 +31,5 @@ owner: claude-code
 <!-- oculpm:plan-log begin v1 -->
 | 시각 | 항목 | 에이전트 | 변화 | 일지 | 메모 |
 |---|---|---|---|---|---|
+| 2026-11-18T20:06:53+09:00 | #stream | claude-code | ☐→~ | journal/20261118/Features_to_add/2006_feature_udada-live-voice-cards.md | 판정 ✓ Executed 72 tests, with 0 failures / ** TEST SUCCEEDED ** · iPhone 말하기 화면에서 됨(흘린 말로 확인) · 진짜 마이크와 Mac 은 아직 · mac |
 <!-- oculpm:plan-log end -->

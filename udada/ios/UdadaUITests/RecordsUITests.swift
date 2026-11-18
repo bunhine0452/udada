@@ -308,6 +308,17 @@ final class RecordsUITests: XCTestCase {
         wait("find.field", 5)
     }
 
+    /// 말로 쏟아내기: 말하는 동안 말이 끝난 조각마다 카드가 떨어지고, 다 말하면 그 카드로 바로 넘긴다 (-udSay 로 말을 흘린다 · 규칙 경로)
+    func testVoiceCardsFallWhileSpeaking() {
+        launch(["-udNoAI", "-udOpen", "udada://dump/voice", "-udSay", "엄마한테 전화해야 되고 보고서도 써야 되는데 월세 오르면 어떡하지"])
+        XCTAssertTrue(el("voice.card.0").waitForExistence(timeout: 8), "첫 조각이 끝나면 카드가 떨어진다")
+        XCTAssertTrue(el("voice.card.2").waitForExistence(timeout: 10), "말이 끝나면 세 장")
+        shot("voice-live")
+        el("voice.done").tap()
+        XCTAssertTrue(app.staticTexts["엄마한테 전화해야 돼"].waitForExistence(timeout: 5), "떨어진 카드로 바로 한 장씩 넘기기가 열린다")
+        XCTAssertFalse(el("voice.done").exists)
+    }
+
     /// 한 주 풀기: 옮길 안을 먼저 보여 주고, 눌러야 옮긴다 (규칙 경로 — 오늘을 비워 달라고 한다)
     func testReplanShowsPlanThenApplies() {
         launch(["-udNoAI", "-udOpen", "udada://replan?q=오늘은 비워 줘"])

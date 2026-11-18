@@ -80,10 +80,14 @@ struct DumpFlow: View {
             draft = t.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : t
         }
         .fullScreenCover(isPresented: $showVoice) {
-            VoiceDumpView(onDone: { t in
+            VoiceDumpView(onDone: { t, live in
                 showVoice = false
-                text = text.isEmpty ? t : text + "\n" + t
+                // 적어 둔 글이 없었으면 말하는 동안 떨어진 카드로 바로 넘어간다 (다시 나누느라 기다리지 않는다)
+                let fresh = text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                text = fresh ? t : text + "\n" + t
+                if fresh, !live.isEmpty, step == .write { startSorting(live) }
             }, onCancel: { showVoice = false })
+            .environment(store)
         }
         .fullScreenCover(isPresented: $showScan) {
             TextScanView(onDone: { lines in
