@@ -272,12 +272,18 @@ struct DumpScene: View {
             let born = b.land(4.3 + Double(i) * 0.35, 0.5)
             let fly = b.land(8.5 + Double(i) * 0.18, 0.6)
             let y0 = CGFloat(110 + i * 46)
-            ZStack {
-                GTodo(text: Self.cards[i], tag: Self.tags[i], tagPop: b.pop(5.9 + Double(i) * 0.3), plate: true).opacity(1 - b.lin(8.6 + Double(i) * 0.18, 0.2))
-                GTodo(text: Self.short[i], plate: true, size: 11).opacity(b.lin(8.6 + Double(i) * 0.18, 0.2))
+            // 날아가는 도중에 긴 카드를 짧은 카드로 바꾼다. 둘을 겹쳐 두면 안 보이는 긴 카드의 폭이 짧은 카드를 칸 밖으로 밀어낸다.
+            Group {
+                if b.on(8.65 + Double(i) * 0.18) {
+                    GTodo(text: Self.short[i], plate: true, size: 11)
+                } else {
+                    GTodo(text: Self.cards[i], tag: Self.tags[i], tagPop: b.pop(5.9 + Double(i) * 0.3), plate: true)
+                }
             }
+            .frame(width: mix(292, 84, fly), height: mix(38, 30, fly))
+            .clipped()
             .opacity(born)
-            .at(mix(14, CGFloat(18 + i * 100), fly), mix(mix(y0 - 22, y0, born), 334, fly), w: mix(292, 84, fly), h: mix(38, 30, fly))
+            .offset(x: mix(14, CGFloat(18 + i * 100), fly), y: mix(mix(y0 - 22, y0, born), 343, fly))
         }
 
         GuideFinger(beat: b, keys: [(7.5, CGPoint(x: 220, y: 340)), (8.1, CGPoint(x: 160, y: 276)), (8.7, CGPoint(x: 160, y: 276))], taps: [8.3])

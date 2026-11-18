@@ -8,7 +8,7 @@ A calm day planner for iPhone and Mac, written in SwiftUI. Dump what is on your 
 ![쏟아내면 한 줄씩 나눠 준다](docs/udada-preview.gif)
 
 - **App Store (안정판, 무료):** https://apps.apple.com/kr/app/id6831147747
-- **소개 영상 (90초, 1080p · 4K):** [nightly 릴리스](https://github.com/bunhine0452/udada/releases/tag/nightly)의 `udada-intro-*.mp4`
+- **소개 영상 (53초, 1080p · 4K, 효과음):** [nightly 릴리스](https://github.com/bunhine0452/udada/releases/tag/nightly)의 `udada-intro-*.mp4`
 - **Mac nightly 빌드:** 같은 [nightly 릴리스](https://github.com/bunhine0452/udada/releases/tag/nightly)
 
 ## 무엇을 하나
@@ -94,6 +94,12 @@ udada/ios/scripts/nightly.sh            # udada/ios/build/nightly/ 에 zip
 ```sh
 brew install ffmpeg
 udada/film/render.sh           # udada/film/out/ 에 1080p60 mp4 와 미리보기 gif  (UHD=1 이면 4K 도)
+```
+
+효과음도 가져다 쓴 음원 없이 [`sfx.py`](udada/film/sfx.py)가 사인파와 잡음으로 만듭니다 — 장면의 박자 표에 맞춰 놓습니다.
+
+```sh
+# (위 한 줄이면 영상 · 소리 · gif 가 다 나온다)
 ```
 
 ## 라이선스
