@@ -8,6 +8,7 @@ A calm day planner for iPhone and Mac, written in SwiftUI. Dump what is on your 
 ![쏟아내면 한 줄씩 나눠 준다](docs/udada-preview.gif)
 
 - **App Store (안정판, 무료):** https://apps.apple.com/kr/app/id6831147747
+- **TestFlight (다음 버전 먼저 써 보기, iPhone):** https://testflight.apple.com/join/3Byb5p4P — 링크를 누르면 바로 참여됩니다. 초대를 따로 받을 필요가 없습니다.
 - **소개 영상 (53초, 1080p · 4K, 효과음):** [nightly 릴리스](https://github.com/bunhine0452/udada/releases/tag/nightly)의 `udada-intro-*.mp4`
 - **Mac nightly 빌드:** 같은 [nightly 릴리스](https://github.com/bunhine0452/udada/releases/tag/nightly)
 
