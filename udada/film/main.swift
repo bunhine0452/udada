@@ -95,14 +95,24 @@ struct Intro: View {
             .offset(y: -220 * lift)
             .opacity(1 - 0.45 * lift)
 
-            VStack(spacing: 26) {
-                VStack(spacing: 10) {
-                    Text("우다다").font(Typo.serif(240)).foregroundStyle(Ink.text)
-                        .offset(y: CGFloat(1 - b.land(2.7, 0.7)) * 60).opacity(b.land(2.7, 0.5))
-                    Capsule().fill(Ink.accent).frame(width: 580 * b.p(3.1, 0.6), height: 10).frame(width: 580, alignment: .leading)
+            // Apple Intelligence × 우다다
+            VStack(spacing: 34) {
+                HStack(alignment: .center, spacing: 34) {
+                    HStack(spacing: 20) {
+                        Image(systemName: "apple.intelligence").font(.system(size: 84, weight: .semibold))
+                        Text("Apple Intelligence").font(.system(size: 84, weight: .semibold))
+                    }
+                    .foregroundStyle(Ink.accent)
+                    .offset(x: CGFloat(1 - b.land(2.7, 0.7)) * -70).opacity(b.land(2.7, 0.5))
+                    Text("×").font(.system(size: 76, weight: .light)).foregroundStyle(Ink.text3)
+                        .scaleEffect(0.4 + 0.6 * min(1, b.pop(3.0))).opacity(min(1, b.pop(3.0)))
+                    Text("우다다").font(Typo.serif(170)).foregroundStyle(Ink.text)
+                        .offset(x: CGFloat(1 - b.land(2.85, 0.7)) * 70).opacity(b.land(2.85, 0.5))
                 }
-                Text("쏟아내면 조용해지는, 하루 한 장").font(.system(size: 42, weight: .medium)).foregroundStyle(Ink.text2)
-                    .show(b.p(3.5, 0.5), rise: 16)
+                .fixedSize()
+                Capsule().fill(Ink.text).frame(width: 1380 * b.p(3.2, 0.6), height: 6).frame(width: 1380, alignment: .leading)
+                Text("아이폰 안의 AI가 듣고, 나누고, 일정을 보고 답장까지.").font(.system(size: 44, weight: .medium)).foregroundStyle(Ink.text2)
+                    .show(b.p(3.6, 0.5), rise: 16)
             }
             .offset(y: 60)
         }
@@ -255,10 +265,17 @@ struct Outro: View {
             .opacity(first)
 
             VStack(spacing: 30) {
-                VStack(spacing: 10) {
-                    Text("우다다").font(Typo.serif(220)).foregroundStyle(Look.ink.ink)
-                    Capsule().fill(Look.ink.accent).frame(width: 530 * b.p(3.5, 0.55), height: 9).frame(width: 530, alignment: .leading)
+                HStack(alignment: .center, spacing: 30) {
+                    HStack(spacing: 18) {
+                        Image(systemName: "apple.intelligence").font(.system(size: 72, weight: .semibold))
+                        Text("Apple Intelligence").font(.system(size: 72, weight: .semibold))
+                    }
+                    .foregroundStyle(Look.ink.accent)
+                    Text("×").font(.system(size: 64, weight: .light)).foregroundStyle(Look.ink.sub)
+                    Text("우다다").font(Typo.serif(150)).foregroundStyle(Look.ink.ink)
                 }
+                .fixedSize()
+                Capsule().fill(Look.ink.ink).frame(width: 1200 * b.p(3.5, 0.55), height: 5).frame(width: 1200, alignment: .leading)
                 Text("App Store에서 무료  ·  iPhone · Mac").font(.system(size: 42, weight: .semibold)).foregroundStyle(Look.ink.ink)
                     .show(b.p(3.9, 0.45), rise: 14)
                 Text("오픈소스  github.com/bunhine0452/udada").font(Typo.num(size: 32, .semibold)).foregroundStyle(Look.ink.sub)
