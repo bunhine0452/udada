@@ -216,6 +216,40 @@ final class Brain {
         return CommandRules.plan(text, readings: readings, data: data, now: now)
     }
 
+    // MARK: 한 주 풀기
+
+    /// "이번 주 너무 빡빡해" → 옮길 안 (아직 아무것도 바꾸지 않는다). 모델이 도구로 한 주를 직접 보고 고르고, 규칙이 실제 기록·빈 시간에 대어 검사한다.
+    /// 모델의 안으로 다 안 풀리면 남은 만큼은 규칙이 채운다. 모델이 없거나 늦으면 규칙만으로 같은 모양의 안이 나온다. onTrace 로 보는 과정을 흘린다.
+    func replan(_ text: String, data: AppData, external: [Entry] = [], now: Date, onTrace: @escaping @Sendable (ReplanTrace) -> Void = { _ in }) async -> ReplanResult {
+        let snap = ReplanRules.snapshot(data: data, external: external, now: now)
+        let ask = ReplanRules.read(text, snapshot: snap)
+        let log = ReplanLog(onTrace: onTrace)
+        var fromModel: [ReplanMove] = []
+        var raw: [String] = []
+        var kept = ask
+        if isReady, !snap.todos.isEmpty, !BrainRules.isCrisis(text),
+           let picked = await deadline(25, { () async throws -> (later: [Int], keep: [Int]) in
+               do { return try await Brain.aiReplan(text, snapshot: snap, log: log) }
+               catch { log.fail("\(error)"); throw error }
+           }) {
+            raw = ["미룸 " + picked.later.map(String.init).joined(separator: ","), "지킴 " + picked.keep.map(String.init).joined(separator: ",")]
+            // 사용자가 지키라고 한 일은 모델이 미루자고 해도 지킨다. 모델이 지키자고 한 일은 규칙이 채울 때도 건드리지 않는다.
+            // (날을 통째로 비우라고 했으면 모델의 '지킴'은 듣지 않는다 — 사용자가 다 옮기라고 한 것이다)
+            if !ask.clear { kept.keep.formUnion(picked.keep.filter { n in !picked.later.contains(n) }) }
+            fromModel = ReplanRules.choose(later: picked.later.filter { !ask.keep.contains($0) }, snapshot: snap, ask: ask)
+        }
+        // 모델이 도구를 안 불렀으면 규칙이 본 것을 과정으로 보여 준다
+        if log.calls == 0 { ReplanRules.traces(snap, ask: ask).forEach(onTrace) }
+        // 모델이 고른 것으로 다 안 풀리면 남은 만큼은 규칙이 채운다 (모델이 지키자고 한 일은 빼고)
+        var moves = ReplanRules.fill(snapshot: snap, ask: kept, already: fromModel)
+        if ReplanRules.overflow(ReplanRules.apply(moves, to: snap.cells), ask: ask) > 0, kept.keep != ask.keep {
+            // 모델이 지키자고 한 일까지 옮겨야 풀리는 만큼은 '꺼 둔 선택지'로만 싣는다 — 넘침을 숫자로만 풀려고 때가 걸린 일을 미루지 않는다
+            let more = ReplanRules.fill(snapshot: snap, ask: ask, already: moves)
+            moves = more.map { m in var m = m; if !moves.contains(where: { $0.id == m.id }) { m.optional = true }; return m }
+        }
+        return ReplanResult(snapshot: snap, ask: ask, moves: moves, fromAI: !fromModel.isEmpty, toolCalls: log.calls, proposed: raw + (log.error.map { ["오류 " + $0] } ?? []))
+    }
+
     // MARK: 말로 찾기
 
     /// 물음 → 답. 모델은 물음을 읽기만 하고(무엇을·언제·어떤 것), 찾기와 답 한 줄은 규칙이 실제 기록으로 한다.

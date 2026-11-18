@@ -97,6 +97,10 @@ struct RootView: View {
             }
             .environment(store)
         }
+        // 한 주 풀기 — 다른 덮개와 겹치지 않게 따로 건다
+        .background {
+            Color.clear.fullScreenCover(item: $store.replan) { r in ReplanView(request: r).environment(store) }
+        }
         // 줄 메뉴의 '작게 쪼개기' (오늘 · 달력 어디서든)
         .sheet(item: $store.splitting) { r in BreakdownSheet(request: r) {}.environment(store) }
         // 움직이는 사용법 — 다른 덮개와 겹치지 않게 따로 건다

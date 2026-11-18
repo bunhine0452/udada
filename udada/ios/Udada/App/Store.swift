@@ -25,6 +25,8 @@ final class Store {
     var showSettings = false
     /// 쪼개기 시트 (Mac — 줄 메뉴에서 연다)
     var splitting: SplitRequest?
+    /// 한 주 풀기를 띄운다 (말이 있으면 그 말로 바로 시작)
+    var replan: ReplanRequest?
     /// Apple Intelligence 둘러보기(움직이는 장면)를 띄운다
     var showAITour = false
     /// 공유로 밖에서 받아 둔 것의 수 (Inbox). 0 이면 카드가 안 보인다.
@@ -211,6 +213,12 @@ struct Toast: Identifiable, Equatable {
 enum AppTab: Hashable { case today, calendar, mind, records }
 
 enum DumpMode: Hashable { case text, voice, photo }
+
+/// 한 주 풀기를 여는 요청: 사용자가 한 말 (비어 있으면 화면에서 적는다)
+struct ReplanRequest: Identifiable, Hashable {
+    var id = UUID()
+    var text = ""
+}
 
 enum Cover: Identifiable, Hashable {
     case rest

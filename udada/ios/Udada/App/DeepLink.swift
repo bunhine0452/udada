@@ -15,6 +15,7 @@ import Foundation
 //   udada://close                하루 닫기
 //   udada://gate                 숏폼 열기 전 '잠깐' 화면 (단축어 자동화)
 //   udada://find?q=…            말로 찾기 (물음을 채워서)
+//   udada://replan?q=…          한 주 풀기 (말을 채워서)
 //   udada://mind · udada://calendar · udada://records · udada://settings
 
 extension Store {
@@ -64,6 +65,11 @@ extension Store {
             // udada://find?q=다음 주 병원 — 물음을 채워서 연다
             pendingAddText = query.first { $0.name == "q" }?.value ?? ""
             cover = .find
+        case "replan":
+            // 한 주 풀기 (말을 채워서) — udada://replan?q=이번 주 너무 빡빡해
+            cover = nil
+            tab = .today
+            replan = ReplanRequest(text: (query.first { $0.name == "q" }?.value ?? "").precomposedStringWithCanonicalMapping)
         case "mind": tab = .mind
         case "calendar": tab = .calendar
         case "records": tab = .records

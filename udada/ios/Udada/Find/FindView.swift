@@ -169,6 +169,12 @@ struct FindView: View {
     private func run(_ q: String) {
         let q = q.trimmingCharacters(in: .whitespacesAndNewlines).precomposedStringWithCanonicalMapping
         guard !q.isEmpty else { return }
+        // 한 주를 풀어 달라는 말은 그 화면으로 넘긴다
+        if ReplanRules.looksLikeReplan(q) {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { store.replan = ReplanRequest(text: q) }
+            return
+        }
         busy = true
         Haptic.tick()
         Task {

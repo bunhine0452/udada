@@ -112,6 +112,7 @@ targets:
       - path: Udada/AI/Commander.swift
       - path: Udada/AI/Breakdown.swift
       - path: Udada/AI/Capture.swift
+      - path: Udada/AI/Replan.swift
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

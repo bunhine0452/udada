@@ -179,6 +179,35 @@ final class MacDelegate: NSObject, NSApplicationDelegate {
                                 "cards": last.map { ["text": $0.text, "bin": $0.bin.rawValue, "ai": $0.fromAI, "day": $0.day?.description ?? ""] }])
                     continue
                 }
+                if let ask = set["ask"] as? String, let week = set["week"] as? [[String: Any]] {
+                    // 한 주 풀기: 묶음이 준 한 주에 대고 옮길 안만 낸다 (적용은 안 한다). 모델만으로 얼마나 풀렸는지도 따로 적는다.
+                    var d = AppData()
+                    let today = DayKey(now)
+                    for (k, w) in week.enumerated() {
+                        var it = Item(title: w["t"] as? String ?? "", day: today.adding(days: w["d"] as? Int ?? 0),
+                                      part: Part(rawValue: w["p"] as? String ?? "afternoon") ?? .afternoon, time: w["time"] as? Int,
+                                      duration: w["m"] as? Int ?? 30, created: now.addingTimeInterval(Double(k)))
+                        it.pinned = w["pin"] as? Bool ?? false
+                        it.moves = w["moves"] as? Int ?? 0
+                        d.items.append(it)
+                    }
+                    let t0 = Date()
+                    let r = await Brain.shared.replan(ask, data: d, now: now)
+                    let ai = r.moves.filter(\.fromAI)
+                    func off(_ k: DayKey) -> Int { today.days(to: k) }
+                    out.append(["ask": ask, "seconds": Date().timeIntervalSince(t0), "status": status, "toolCalls": r.toolCalls,
+                                "before": ReplanRules.overflow(r.snapshot.cells, ask: r.ask), "after": ReplanRules.overflow(r.after(), ask: r.ask),
+                                "afterAIOnly": ReplanRules.overflow(ReplanRules.apply(ai, to: r.snapshot.cells), ask: r.ask),
+                                "weekAfter": r.after().reduce(0) { $0 + $1.overflow },
+                                "focus": r.ask.focus.map(off), "clear": r.ask.clear,
+                                "proposed": r.proposed, "todos": r.snapshot.todos.map { "\($0.n)번 \($0.entry.title) \(off($0.entry.day))일 \($0.entry.part.name) \($0.entry.duration)분" },
+                                "left": r.ask.focus.first.map { f in r.snapshot.todos.filter { t in t.entry.day == f && !t.entry.pinned && !r.moves.contains { $0.id == t.id && !$0.optional } }.count } ?? -1,
+                                "moves": r.moves.map { m in
+                                    ["title": m.todo.entry.title, "from": off(m.todo.entry.day), "fromPart": m.todo.entry.part.rawValue,
+                                     "to": off(m.day), "toPart": m.part.rawValue, "ai": m.fromAI, "why": m.why, "optional": m.optional] as [String: Any]
+                                }])
+                    continue
+                }
                 if let cmd = set["cmd"] as? String {
                     // 말로 시키기: 고정한 예시 하루에 대고 계획만 세운다 (적용은 안 한다)
                     let t0 = Date()

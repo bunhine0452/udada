@@ -44,7 +44,9 @@ x = d[0]
 print("  예:", " → ".join(f'{t["t"]:.1f}초 {t["ai"]}/{t["cards"]}장' for t in x["ticks"]))
 PY
 fi
-if [[ "$SET" == cmd* ]]; then
+if [[ "$SET" == replan* ]]; then
+  python3 "$IOS/Eval/score_replan.py" "$IOS/Eval/$SET.json" "$OUT" "${EVAL_VERBOSE:-}"
+elif [[ "$SET" == cmd* ]]; then
   python3 "$IOS/Eval/score_cmd.py" "$IOS/Eval/$SET.json" "$OUT" "${EVAL_VERBOSE:-}"
 elif [[ "$SET" == steps* ]]; then
   python3 "$IOS/Eval/score_steps.py" "$IOS/Eval/$SET.json" "$OUT" "${EVAL_VERBOSE:-}"

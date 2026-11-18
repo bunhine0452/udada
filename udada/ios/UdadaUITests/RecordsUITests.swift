@@ -308,6 +308,18 @@ final class RecordsUITests: XCTestCase {
         wait("find.field", 5)
     }
 
+    /// 한 주 풀기: 옮길 안을 먼저 보여 주고, 눌러야 옮긴다 (규칙 경로 — 오늘을 비워 달라고 한다)
+    func testReplanShowsPlanThenApplies() {
+        launch(["-udNoAI", "-udOpen", "udada://replan?q=오늘은 비워 줘"])
+        let headline = wait("replan.headline", 10)
+        XCTAssertTrue(headline.label.contains("옮기면"), "결과 한 줄: \(headline.label)")
+        XCTAssertTrue(el("replan.chart").exists, "한 주의 짐 그림")
+        shot("replan-plan")
+        wait("replan.apply").tap()
+        wait("add.field")
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS '옮겼어'")).firstMatch.waitForExistence(timeout: 3), "되돌릴 수 있는 토스트")
+    }
+
     /// 한 줄에 여러 일을 적으면 나눠서 넣는다 (규칙 경로)
     func testOneLineSplitsIntoSeveral() {
         launch()

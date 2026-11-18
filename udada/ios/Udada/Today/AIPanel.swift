@@ -31,6 +31,9 @@ struct AIPanel: View {
                 }
                 .padding(.bottom, 6)
 
+                row("calendar.day.timeline.left", "한 주 풀기", "“이번 주 너무 빡빡해” — 넘치는 칸의 일을 빈 칸으로", id: "ai.replan") {
+                    store.replan = ReplanRequest()
+                }
                 row("mic", "말로 쏟아내기", "떠오르는 대로 말하면 한 줄씩 나눠 줘", id: "ai.voice") {
                     store.dumpMode = .voice; store.cover = .dump
                 }

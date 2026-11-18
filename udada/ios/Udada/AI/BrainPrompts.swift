@@ -586,3 +586,127 @@ private enum Gen {
 }
 
 #endif
+
+// MARK: - 한 주 풀기 (도구 호출)
+// 모델이 스스로 도구를 불러 한 주를 본다: seeWeek(칸마다 빈 시간·넘침) → seeTodos(그날의 할 일, 번호) → 미룰 일과 지킬 일을 가른다.
+// 도구가 돌려주는 글은 전부 ReplanRules 가 실제 기록으로 만든다. 모델의 안은 ReplanRules.check 가 다시 기록에 댄다.
+
+/// 도구가 불릴 때마다 적는다 (화면의 '보는 과정'과 평가의 호출 수)
+final class ReplanLog: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+    private let onTrace: @Sendable (ReplanTrace) -> Void
+    init(onTrace: @escaping @Sendable (ReplanTrace) -> Void) { self.onTrace = onTrace }
+    func note(_ kind: ReplanTrace.Kind, _ text: String) {
+        lock.lock(); count += 1; lock.unlock()
+        onTrace(ReplanTrace(kind: kind, text: text, fromAI: true))
+    }
+    var calls: Int { lock.lock(); defer { lock.unlock() }; return count }
+    private var failure: String?
+    /// 모델 호출이 던진 오류 (평가에서 왜 규칙으로 넘어갔는지 본다)
+    func fail(_ e: String) { lock.lock(); failure = String(e.prefix(300)); lock.unlock() }
+    var error: String? { lock.lock(); defer { lock.unlock() }; return failure }
+}
+
+extension Brain {
+    /// 모델이 도구로 한 주를 보고 가른 것 (검사 전): 미뤄도 되는 일의 번호(쉬운 것부터) · 그 자리에서 해야 하는 일의 번호.
+    /// 어디로 옮길지는 모델이 정하지 않는다 — 빈 시간 셈은 규칙이 한다 (모델에게 맡겼더니 제자리로 옮기는 안만 냈다).
+    @concurrent nonisolated static func aiReplan(_ text: String, snapshot: ReplanSnapshot, log: ReplanLog) async throws -> (later: [Int], keep: [Int]) {
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, *) { return try await ReplanGen.plan(text, snapshot: snapshot, log: log) }
+        #endif
+        throw Unavailable()
+    }
+}
+
+#if canImport(FoundationModels)
+
+@available(iOS 26.0, macOS 26.0, *)
+@Generable private struct GWeekArgs {
+    @Guide(description: "오늘부터 며칠을 볼지", .range(1...7))
+    var days: Int
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@Generable private struct GDayArgs {
+    @Guide(description: "볼 날. 오늘, 내일, 또는 요일(월요일 … 일요일)")
+    var day: String
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@Generable private struct GReplan {
+    @Guide(description: "넘치는 칸에서 다른 때로 미뤄도 괜찮은 할 일의 번호. 미루기 쉬운 것부터. seeTodos 에서 본 번호만.", .maximumCount(8))
+    var later: [Int]
+    @Guide(description: "그 자리에서 꼭 해야 해서 옮기면 안 되는 할 일의 번호. seeTodos 에서 본 번호만.", .maximumCount(8))
+    var keep: [Int]
+}
+
+/// 도구 1: 한 주의 짐
+@available(iOS 26.0, macOS 26.0, *)
+private struct WeekTool: Tool {
+    let snapshot: ReplanSnapshot
+    let log: ReplanLog
+    let name = "seeWeek"
+    let description = "오늘부터 7일 동안 아침·낮·저녁 칸마다 빈 시간이 얼마나 남았는지, 어느 칸이 넘치는지 본다."
+    func call(arguments: GWeekArgs) async throws -> String {
+        let over = snapshot.cells.filter { $0.overflow > 0 }
+        log.note(.week, over.isEmpty ? "한 주의 빈 시간을 봤어. 넘치는 칸은 없어."
+                                     : "한 주의 빈 시간을 봤어. " + over.prefix(3).map { "\(snapshot.short($0.day, $0.part)) \(Fmt.dur($0.overflow)) 넘침" }.joined(separator: " · "))
+        return ReplanRules.weekText(snapshot, days: 7)
+    }
+}
+
+/// 도구 2: 그날의 옮길 수 있는 할 일 (번호)
+@available(iOS 26.0, macOS 26.0, *)
+private struct TodosTool: Tool {
+    let snapshot: ReplanSnapshot
+    let log: ReplanLog
+    let name = "seeTodos"
+    let description = "어느 하루의 옮길 수 있는 할 일을 번호·칸·길이와 함께 본다. 옮기려면 먼저 이걸로 번호를 알아야 한다."
+    func call(arguments: GDayArgs) async throws -> String {
+        guard let day = snapshot.day(named: arguments.day) else { return "그런 날은 없어. 오늘, 내일, 또는 요일로 다시 말해." }
+        let n = snapshot.todos.filter { $0.entry.day == day }.count
+        log.note(.todos, "\(snapshot.short(day, .morning).split(separator: " ")[0])의 할 일 \(n)개를 봤어.")
+        return ReplanRules.todosText(snapshot, day: day)
+    }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+private enum ReplanGen {
+    static let instructions = """
+    너는 사용자의 한 주를 풀어 주는 도우미야. 반드시 도구를 써서 사실을 본 다음에 답해.
+    1. seeWeek 로 한 주를 본다.
+    2. 넘치는 날(또는 사용자가 말한 날)을 seeTodos 로 봐서 할 일과 번호를 안다.
+    3. 그날의 할 일을 둘로 가른다. later: 다른 때 해도 괜찮은 일. keep: 그날 그 자리에서 해야 하는 일.
+    때가 걸린 일(마감 · 제출 · 예약 · 약속 준비 · 누가 기다리는 일)과 사용자가 꼭 하겠다거나 그대로 두라고 한 일, '오늘의 하나'는 keep. 언제 해도 되는 일은 later.
+    넘친 시간만큼은 덜어야 해 — later 에 넣은 일의 길이를 더하면 넘친 시간보다 길어야 한다. 모자라면 keep 가운데 그나마 덜 급한 것을 later 로 옮겨.
+    어디로 옮길지는 정하지 않아도 돼. 번호는 seeTodos 에서 본 것만 써.
+    """
+
+    /// 도구 없이: 같은 사실을 글로 넣어 주고 가르기만 시킨다
+    static let direct = """
+    너는 사용자의 한 주를 풀어 주는 도우미야. 아래에 한 주의 빈 시간과 넘치는 날의 할 일이 번호와 함께 있어.
+    그 할 일을 둘로 갈라. later: 다른 때 해도 괜찮은 일. keep: 그날 그 자리에서 해야 하는 일.
+    때가 걸린 일(마감 · 제출 · 예약 · 약속 준비 · 누가 기다리는 일)과 사용자가 꼭 하겠다거나 그대로 두라고 한 일, '오늘의 하나'는 keep. 언제 해도 되는 일은 later.
+    넘친 시간만큼은 덜어야 해 — later 에 넣은 일의 길이를 더하면 넘친 시간보다 길어야 한다. 모자라면 keep 가운데 그나마 덜 급한 것을 later 로 옮겨.
+    어디로 옮길지는 정하지 않아도 돼. 번호는 아래에 있는 것만 써.
+    """
+
+    static let options = GenerationOptions(sampling: .greedy, maximumResponseTokens: 300)
+
+    static func plan(_ text: String, snapshot: ReplanSnapshot, log: ReplanLog) async throws -> (later: [Int], keep: [Int]) {
+        let ask = "오늘은 \(snapshot.label(snapshot.today)). 사용자의 말: \(text)"
+        // 1) 도구를 쥐여 주고 스스로 보게 한다
+        let session = LanguageModelSession(tools: [WeekTool(snapshot: snapshot, log: log), TodosTool(snapshot: snapshot, log: log)], instructions: instructions)
+        let first = try await session.respond(to: ask, generating: GReplan.self, options: options).content
+        if log.calls > 0, !(first.later.isEmpty && first.keep.isEmpty) { return (first.later, first.keep) }
+        // 2) 도구를 안 불렀거나 빈손이면 — 이 모델은 절반쯤 그런다 — 같은 사실을 넣어 주고 다시 묻는다
+        let ruled = ReplanRules.read(text, snapshot: snapshot)
+        let days = snapshot.days.filter { d in ruled.focus.contains(d) || (ruled.focus.isEmpty && snapshot.cells.contains { $0.day == d && $0.overflow > 0 }) }
+        guard !days.isEmpty else { return (first.later, first.keep) }
+        let facts = ReplanRules.weekText(snapshot) + "\n\n" + days.map { ReplanRules.todosText(snapshot, day: $0) }.joined(separator: "\n\n")
+        let second = try await LanguageModelSession(instructions: direct).respond(to: facts + "\n\n" + ask, generating: GReplan.self, options: options).content
+        return (second.later, second.keep)
+    }
+}
+#endif

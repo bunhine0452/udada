@@ -69,6 +69,7 @@ struct BandView: View {
             if !folded {
                 // 칸의 머리 줄: 지금 칸은 코발트로 굵게
                 Rectangle().fill(band.live ? Ink.accent : Ink.rule).frame(height: band.live ? 2.5 : 1)
+                if canRelieve { relieve }
                 rows
             }
         }
@@ -146,6 +147,29 @@ struct BandView: View {
             }
             .accessibilityElement(children: .combine)
         }
+    }
+
+    /// 넘치는 칸이면 한 주 풀기를 바로 열 수 있다 (오늘부터 7일 안의 날만 — 그 화면이 보는 범위)
+    private var canRelieve: Bool {
+        !compact && !band.gone && band.overflow > 0 && (0..<7).contains(store.today.days(to: sheet.day))
+    }
+
+    private var relieve: some View {
+        let day = sheet.isToday ? "오늘" : store.today.days(to: sheet.day) == 1 ? "내일" : Fmt.weekday[sheet.day.weekday()] + "요일"
+        return Button { store.replan = ReplanRequest(text: "\(day) \(band.part.name)이 넘쳐") } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "apple.intelligence").font(.system(.footnote, weight: .semibold)).accessibilityHidden(true)
+                Text("\(Fmt.dur(band.overflow)) 넘쳐 · 빈 칸으로 풀기").font(.system(.subheadline, weight: .semibold))
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.right").font(.system(.caption, weight: .semibold)).accessibilityHidden(true)
+            }
+            .foregroundStyle(Ink.accent)
+            .padding(.horizontal, 12)
+            .frame(minHeight: Metric.tap)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Ink.accentSoft))
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityIdentifier("band.relieve.\(band.part.rawValue)")
     }
 
     private var nowTag: some View {

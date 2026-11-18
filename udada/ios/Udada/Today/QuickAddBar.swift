@@ -80,11 +80,13 @@ struct QuickAddBar: View {
     private var draft: Draft { DraftMaker.make(text, chips: chips, selected: day, now: store.now, settings: store.settings) }
     private var open: Bool { focused.wrappedValue || !text.isEmpty }
     private var canAdd: Bool { !(lines.isEmpty || (lines.count == 1 && draft.isEmpty)) }
+    /// 한 주를 풀어 달라는 말이면 넣지 않고 옮길 안을 보여 준다
+    private var relieving: Bool { lines.count == 1 && ReplanRules.looksLikeReplan(lines[0]) }
     /// 물어보는 말이면 넣지 않고 찾는다
     private var asking: Bool { lines.count == 1 && CommandRules.isQuestion(lines[0]) }
     /// 한 줄에 일이 여럿이면("엄마한테 전화하고 보고서 쓰고…") 나눠서 넣는다. 칩을 골랐거나 시키는 말이면 아니다.
     private var multi: Bool {
-        guard lines.count == 1, !oneLine, !asking, chips == DraftChips(), !CommandRules.looksLikeCommand(lines[0]) else { return false }
+        guard lines.count == 1, !oneLine, !asking, !relieving, chips == DraftChips(), !CommandRules.looksLikeCommand(lines[0]) else { return false }
         return BrainRules.split(lines[0]).count >= 2
     }
     private var shownCards: [DumpSuggestion] {
@@ -98,7 +100,7 @@ struct QuickAddBar: View {
                 aiButton
                 field
                 if open {
-                    Button(asking ? "찾기" : "넣기", action: submit)
+                    Button(relieving ? "풀기" : asking ? "찾기" : "넣기", action: submit)
                         .buttonStyle(FillButton(tone: .ink, height: 50, full: false))
                         .fixedSize()
                         .disabled(!canAdd)
@@ -343,6 +345,8 @@ struct QuickAddBar: View {
                 Text("\(lines.count)개를 한 번에 넣어. 각 줄을 따로 읽어.")
             } else if draft.isEmpty {
                 Text("그냥 적고 넣기. 시각을 쓰면 약속이 돼.")
+            } else if relieving {
+                Text("한 주를 풀어 달라는 말이네. 옮길 안을 먼저 보여 줄게.")
             } else if asking {
                 Text("물어보는 말이네. 넣지 않고 내 기록에서 찾아 줄게.")
             } else {
@@ -360,6 +364,7 @@ struct QuickAddBar: View {
 
     private var previewLabel: String {
         if lines.count > 1 { return "\(lines.count)개를 한 번에 넣어. 각 줄을 따로 읽어." }
+        if relieving { return "한 주를 풀어 달라는 말이네. 옮길 안을 먼저 보여 줄게." }
         if asking { return "물어보는 말이네. 넣지 않고 내 기록에서 찾아 줄게." }
         if draft.isEmpty { return "그냥 적고 넣기. 시각을 쓰면 약속이 돼." }
         return "\(draft.title), \(draft.summary(today: store.today))"
@@ -392,6 +397,14 @@ struct QuickAddBar: View {
             text = ""
             focused.wrappedValue = false
             store.cover = .find
+            return
+        }
+        // 한 주를 풀어 달라는 말이면 그 화면으로
+        if relieving {
+            let q = ls[0]
+            text = ""
+            focused.wrappedValue = false
+            store.replan = ReplanRequest(text: q)
             return
         }
         // 물음이면 찾기로
