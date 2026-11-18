@@ -343,6 +343,23 @@ struct InboxCard: View {
                                      : "챙길 일정과 할 일만 골라 줘. 넣기 전에 먼저 보여 줘.")
                 .font(.system(.subheadline)).foregroundStyle(Ink.text2)
                 .fixedSize(horizontal: false, vertical: true)
+            if let ask = offerInInbox {
+                Button { store.reply = ask } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "apple.intelligence").font(.system(.footnote, weight: .semibold)).accessibilityHidden(true)
+                        Text("약속을 묻는 글이 있어 · 내 일정 보고 답장 쓰기").font(.system(.subheadline, weight: .semibold))
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 4)
+                        Image(systemName: "chevron.right").font(.system(.caption, weight: .semibold)).accessibilityHidden(true)
+                    }
+                    .foregroundStyle(Ink.accent)
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: Metric.tap)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Ink.accentSoft))
+                }
+                .buttonStyle(PressStyle())
+                .accessibilityIdentifier("inbox.reply")
+            }
             HStack(spacing: 8) {
                 Button("정리하기") { store.takeInbox = true; store.tab = .mind; store.dumpMode = .text; store.cover = .dump }
                     .buttonStyle(FillButton(tone: .accent, height: 44, full: false))
@@ -358,6 +375,15 @@ struct InboxCard: View {
         .card()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("inbox.card")
+    }
+
+    /// 받아 둔 글 가운데 약속을 묻는 첫 글
+    private var offerInInbox: ReplyRequest? {
+        for u in Inbox.items() where u.pathExtension == "txt" {
+            guard let t = try? String(contentsOf: u, encoding: .utf8), ReplyRules.looksLikeOffer(t, now: store.now) else { continue }
+            return ReplyRequest(text: t.trimmingCharacters(in: .whitespacesAndNewlines), source: u)
+        }
+        return nil
     }
 }
 

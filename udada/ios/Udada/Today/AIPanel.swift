@@ -43,9 +43,14 @@ struct AIPanel: View {
                 row("text.bubble", "물어보거나 시키기", "“다음 주 병원 언제야” · “치과 내일로 미뤄”", id: "ai.ask") {
                     store.cover = .find
                 }
-                row("doc.on.clipboard", "받은 글 붙여넣기", "복사한 메시지 · 메일에서 챙길 것만 골라", id: "ai.paste") {
+                row("doc.on.clipboard", "받은 글 붙여넣기", "“금요일 7시 어때?”면 내 일정 보고 답장까지 · 공지면 챙길 것만", id: "ai.paste") {
                     guard let t = UIPasteboard.general.string, t.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 else {
                         store.show("복사해 둔 글이 없어")
+                        return
+                    }
+                    // 약속을 묻는 글이면 내 일정을 보고 답장을 쓴다
+                    if ReplyRules.looksLikeOffer(t, now: store.now) {
+                        store.reply = ReplyRequest(text: t.trimmingCharacters(in: .whitespacesAndNewlines))
                         return
                     }
                     Inbox.put(text: t)

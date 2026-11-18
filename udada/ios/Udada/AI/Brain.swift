@@ -216,6 +216,19 @@ final class Brain {
         return CommandRules.plan(text, readings: readings, data: data, now: now)
     }
 
+    // MARK: 받은 약속에 답장
+
+    /// 규칙이 쓴 답장을 Apple Intelligence 가 받은 글의 말투에 맞춰 다시 쓴다. 검사(ReplyRules.vet)를 넘은 문장만 바꾼다 — 못 넘으면 규칙 문장 그대로.
+    func polish(_ check: ReplyCheck) async -> [ReplyDraft] {
+        let rule = ReplyRules.drafts(check)
+        guard isReady, !BrainRules.isCrisis(check.offer.message),
+              let written = await deadline(8, { [facts = ReplyRules.facts(check)] in try await Brain.aiReply(facts) }) else { return rule }
+        return rule.map { d in
+            guard let raw = written[d.kind], let ok = ReplyRules.vet(raw, kind: d.kind, check: check) else { return d }
+            return ReplyDraft(kind: d.kind, text: ok, fromAI: true)
+        }
+    }
+
     // MARK: 한 주 풀기
 
     /// "이번 주 너무 빡빡해" → 옮길 안 (아직 아무것도 바꾸지 않는다). 모델이 도구로 한 주를 직접 보고 고르고, 규칙이 실제 기록·빈 시간에 대어 검사한다.

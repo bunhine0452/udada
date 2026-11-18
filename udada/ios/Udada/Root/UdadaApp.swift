@@ -97,6 +97,10 @@ struct RootView: View {
             }
             .environment(store)
         }
+        // 받은 약속에 답장
+        .background {
+            Color.clear.fullScreenCover(item: $store.reply) { r in ReplyView(request: r).environment(store) }
+        }
         // 한 주 풀기 — 다른 덮개와 겹치지 않게 따로 건다
         .background {
             Color.clear.fullScreenCover(item: $store.replan) { r in ReplanView(request: r).environment(store) }

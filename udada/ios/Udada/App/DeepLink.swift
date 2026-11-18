@@ -65,6 +65,11 @@ extension Store {
             // udada://find?q=다음 주 병원 — 물음을 채워서 연다
             pendingAddText = query.first { $0.name == "q" }?.value ?? ""
             cover = .find
+        case "reply":
+            // 받은 약속에 답장 — udada://reply?text=금요일 7시에 저녁 어때?
+            cover = nil
+            tab = .today
+            reply = ReplyRequest(text: (query.first { $0.name == "text" }?.value ?? "").precomposedStringWithCanonicalMapping)
         case "replan":
             // 한 주 풀기 (말을 채워서) — udada://replan?q=이번 주 너무 빡빡해
             cover = nil

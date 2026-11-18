@@ -308,6 +308,19 @@ final class RecordsUITests: XCTestCase {
         wait("find.field", 5)
     }
 
+    /// 받은 약속에 답장: 내 일정에 대어 보고(예시 하루의 15시 치과와 겹친다) 다른 시간을 제안하는 답장을 고르면 약속이 들어간다 (규칙 경로)
+    func testReplyChecksMyDayThenAddsEvent() {
+        launch(["-udNoAI", "-udOpen", "udada://reply?text=오늘 3시에 커피 어때?"])
+        let verdict = wait("reply.verdict", 8)
+        XCTAssertTrue(verdict.label.contains("치과"), "겹치는 내 약속을 말한다: \(verdict.label)")
+        XCTAssertTrue(wait("reply.draft.alternative", 5).label.contains("4시"), "치과가 끝나는 4시를 제안한다")
+        shot("reply-clash")
+        el("reply.send").tap()
+        wait("add.field")
+        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS '넣었어'")).firstMatch.waitForExistence(timeout: 3))
+        XCTAssertTrue(el("event.커피").waitForExistence(timeout: 3), "16시에 커피 약속이 들어갔다")
+    }
+
     /// 말로 쏟아내기: 말하는 동안 말이 끝난 조각마다 카드가 떨어지고, 다 말하면 그 카드로 바로 넘긴다 (-udSay 로 말을 흘린다 · 규칙 경로)
     func testVoiceCardsFallWhileSpeaking() {
         launch(["-udNoAI", "-udOpen", "udada://dump/voice", "-udSay", "엄마한테 전화해야 되고 보고서도 써야 되는데 월세 오르면 어떡하지"])

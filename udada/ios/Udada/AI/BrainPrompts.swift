@@ -710,3 +710,37 @@ private enum ReplanGen {
     }
 }
 #endif
+
+// MARK: - 받은 약속에 답장
+// 모델은 문장만 쓴다. 날 · 시각 · 겹침 · 대신 되는 때는 ReplyRules 가 실제 기록으로 정해 facts 로 건네고, 쓴 문장은 ReplyRules.vet 이 다시 본다.
+
+extension Brain {
+    /// 세 가지 답장 문장 (검사 전): 수락 · 다른 시간 · 거절
+    @concurrent nonisolated static func aiReply(_ facts: String) async throws -> [ReplyDraft.Kind: String] {
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, *) {
+            let session = LanguageModelSession(instructions: """
+            약속 제안에 보낼 답장을 써. 한두 문장으로 짧게, 사람이 메신저에 쓰듯이.
+            말투는 적어 준 대로 맞춘다(반말이면 반말, 존댓말이면 존댓말). 이모지와 영어는 쓰지 않는다.
+            날과 시각은 적어 준 것만 말한다. 다른 시각이나 장소를 지어내지 않는다.
+            accept: 제안된 때에 좋다고 하는 답. alternative: 그때는 일정이 있어서 '대신 되는 때'가 어떠냐고 묻는 답. decline: 이번에는 어렵다고 부드럽게 거절하는 답.
+            """)
+            let r = try await session.respond(to: facts, generating: GReplies.self, options: GenerationOptions(sampling: .greedy, maximumResponseTokens: 220)).content
+            return [.accept: r.accept, .alternative: r.alternative, .decline: r.decline]
+        }
+        #endif
+        throw Unavailable()
+    }
+}
+
+#if canImport(FoundationModels)
+@available(iOS 26.0, macOS 26.0, *)
+@Generable private struct GReplies {
+    @Guide(description: "제안된 때에 좋다고 하는 답장")
+    var accept: String
+    @Guide(description: "그때는 일정이 있어서 대신 되는 때를 제안하는 답장")
+    var alternative: String
+    @Guide(description: "이번에는 어렵다고 부드럽게 거절하는 답장")
+    var decline: String
+}
+#endif
