@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우다다 — 머리 식히는 기계 (가치 재설계 시안)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbit&family=JetBrains+Mono:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 시안 D(기계) 언어 그대로. 가치만 바꿈: 해치우기 → 머리 조용하게.
+   숫자판 = XP가 아니라 '닫은 고리'. 파랑은 '다음에 누를 것' 하나에만. */
+:root{
+  --body:#D9D7D1; --body2:#CAC7BF; --edge:#A9A69E; --ink:#1D1D1B; --ink2:#6F6C65;
+  --lcd:#B9C3A8; --seg:#1E2619; --blue:#2E4BF0; --blue2:#1B2FAE;
+  --sans:"Pretendard Variable",Pretendard,system-ui,sans-serif; --lcdf:"Orbit",sans-serif; --mono:"JetBrains Mono",monospace;
+}
+*{box-sizing:border-box;margin:0}
+body{background:#ECEAE5;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;word-break:keep-all;padding:40px 32px 64px}
+.sheet-h{max-width:1180px;margin:0 auto 18px;display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:end;border-bottom:1.5px solid var(--ink);padding-bottom:14px}
+.sheet-h .tag{font:700 12px var(--mono);margin-bottom:8px}
+.sheet-h h1{font-size:34px;font-weight:800;letter-spacing:-.05em;line-height:1.05}
+.sheet-h p{font-size:14px;color:#57554f;max-width:560px;line-height:1.6}
+.sheet-h .vs{font:700 12px/1.8 var(--sans);text-align:right;color:var(--ink2)}
+.sheet-h .vs s{color:#a19e96}
+.sheet-h .vs b{color:var(--ink)}
+.flow{max-width:1180px;margin:0 auto 34px;display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid #cfccc4}
+.flow div{padding:10px 8px 12px;font:600 12px/1.45 var(--sans);color:var(--ink2);border-left:1px solid #cfccc4}
+.flow div:first-child{border-left:0}
+.flow b{display:block;font:800 13px var(--sans);color:var(--ink)}
+.flow i{font-style:normal;font:700 10px var(--mono);color:var(--blue)}
+.row{display:flex;gap:44px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+figure{display:grid;gap:12px;width:360px}
+figcaption{font:500 12px/1.55 var(--sans);color:#57554f}
+figcaption b{color:var(--ink);font-weight:800}
+figcaption em{font-style:normal;font:700 10.5px var(--mono);color:var(--ink2);display:block;margin-top:2px}
+.phone{width:360px;height:780px;border-radius:46px;overflow:hidden;position:relative;background:var(--body);box-shadow:0 0 0 9px #0a0a0a,0 40px 70px -30px rgba(0,0,0,.45)}
+.sb{position:absolute;top:0;left:0;right:0;height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font:700 14px var(--sans);z-index:5}
+.face{position:absolute;inset:0;padding:54px 18px 22px;display:flex;flex-direction:column;gap:14px}
+.eng{font:700 9.5px var(--sans);letter-spacing:.04em;color:var(--ink2)}
+.brand{display:flex;justify-content:space-between;align-items:center}
+.brand b{font:800 20px var(--sans);letter-spacing:-.06em}
+.brand b sub{font:700 9px var(--mono);vertical-align:0;margin-left:4px;color:var(--ink2)}
+.steps{display:flex;gap:4px}
+.steps i{width:16px;height:4px;border-radius:2px;background:#bdbab2}
+.steps i.on{background:var(--ink)}
+.steps i.now{background:var(--blue)}
+
+.lcd{background:var(--lcd);border-radius:8px;padding:12px 14px;color:var(--seg);font-family:var(--lcdf);position:relative;
+  box-shadow:inset 0 2px 0 rgba(0,0,0,.18),inset 0 0 0 1px rgba(0,0,0,.12),0 0 0 6px var(--ink),0 0 0 7px var(--edge)}
+.lcd::after{content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.035) 0 1px,transparent 1px 3px)}
+.lcd .st{display:flex;justify-content:space-between;font-size:10px;opacity:.85;border-bottom:1px solid rgba(30,38,25,.25);padding-bottom:6px;margin-bottom:6px}
+.lcd .st i{font-style:normal;background:var(--seg);color:var(--lcd);padding:0 4px}
+.lcd p{font-size:15px;line-height:1.75}
+.cur{display:inline-block;width:9px;height:15px;background:var(--seg);vertical-align:-2px;animation:b 1s steps(1) infinite}
+@keyframes b{50%{opacity:0}}
+.lcd.off{background:#2a2e27;color:#4f5848}
+.lcd.off .st{border-color:rgba(255,255,255,.08)}
+.lcd.off .st i{background:#4f5848;color:#2a2e27}
+
+.keys{display:grid;gap:10px}
+.key{all:unset;background:var(--body);border-radius:10px;box-shadow:0 4px 0 var(--edge),0 5px 8px rgba(0,0,0,.18);display:flex;flex-direction:column;justify-content:space-between;padding:10px 12px;font:700 15px var(--sans);letter-spacing:-.03em;position:relative}
+.key small{font:700 9.5px var(--sans);color:var(--ink2);letter-spacing:.02em}
+.key.blue{background:var(--blue);color:#fff;box-shadow:0 5px 0 var(--blue2),0 7px 12px rgba(30,40,160,.35)}
+.key.blue small{color:#c2cbff}
+.key.dark{background:var(--ink);color:#eee;box-shadow:0 4px 0 #000}
+.key.dark small{color:#8f8d87}
+.key.down{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+.key .led{position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:50%;background:#9e9b93}
+.key .led.on{background:var(--blue);box-shadow:0 0 6px rgba(46,75,240,.8)}
+.key .cnt{position:absolute;right:10px;bottom:9px;font:800 12px var(--mono);color:var(--ink2)}
+
+.odo{display:flex;gap:3px;background:#111;padding:5px;border-radius:5px;box-shadow:inset 0 2px 3px #000,0 1px 0 rgba(255,255,255,.6)}
+.odo span{width:28px;height:40px;border-radius:3px;background:#262624;color:#F1EFE8;font:800 24px/40px var(--mono);text-align:center;position:relative;overflow:hidden}
+.odo span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#000}
+.odo span.r{animation:roll .9s .4s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes roll{from{transform:translateY(-40%);color:transparent;text-shadow:0 30px 0 #F1EFE8}}
+.meter{display:flex;justify-content:space-between;align-items:center}
+
+/* 1 온도 */
+.temp{display:flex;align-items:flex-end;justify-content:space-between}
+.temp .n{font:400 92px/0.9 var(--lcdf);letter-spacing:-.05em}
+.temp .u{font-size:12px;text-align:right;line-height:1.6}
+.thermo{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:10px}
+.thermo i{height:14px;background:var(--seg)}
+.thermo i.o{background:rgba(30,38,25,.14)}
+.thermo+.sc{display:flex;justify-content:space-between;font-size:10px;margin-top:4px}
+.bigknob{position:relative;width:200px;height:200px;margin:2px auto 0}
+.bigknob .tk span{position:absolute;left:50%;top:50%;font:700 11px var(--mono);color:var(--ink2);transform-origin:0 0}
+.bigknob .tk span.on{color:var(--ink)}
+.bigknob .k{position:absolute;inset:38px;border-radius:50%;background:var(--body);box-shadow:0 7px 0 var(--edge),0 10px 18px rgba(0,0,0,.25);transform:rotate(43deg)}
+.bigknob .k::before{content:"";position:absolute;left:50%;top:9px;width:5px;height:26px;margin-left:-2.5px;border-radius:3px;background:var(--blue)}
+.bigknob .k::after{content:"";position:absolute;inset:22px;border-radius:50%;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)}
+.feel{grid-template-columns:repeat(4,1fr);height:54px}
+.feel .key{font-size:14px;justify-content:center;align-items:center}
+
+/* 3 분류 */
+.card{display:flex;flex-direction:column}
+.card .stack{display:flex;gap:3px;margin-bottom:10px}
+.card .stack i{flex:1;height:4px;background:rgba(30,38,25,.15)}
+.card .stack i.d{background:var(--seg)}
+.card h2{font:400 28px/1.3 var(--lcdf);letter-spacing:-.04em;margin:6px 0 12px}
+.card .sug{border:1px solid var(--seg);padding:8px 10px;font-size:12.5px;line-height:1.6}
+.card .sug b{font-weight:400;background:var(--seg);color:var(--lcd);padding:0 4px}
+.chute{grid-template-columns:1fr 1fr;grid-template-rows:84px 84px;margin-top:auto}
+.chute .key{font-size:17px}
+.ok{grid-template-columns:1fr;height:62px}
+.ok .key{flex-direction:row;align-items:center;font-size:17px}
+
+/* 4 식히기 */
+.breath{display:flex;flex-direction:column;justify-content:center;flex:1}
+.breath .lbl{font-size:13px;display:flex;justify-content:space-between}
+.breath .ph{font:400 40px/1.1 var(--lcdf);letter-spacing:-.04em;margin:18px 0 22px}
+.bars{display:grid;grid-template-columns:1fr 1fr 4fr;gap:6px;align-items:end;height:84px}
+.bars i{background:var(--seg);position:relative}
+.bars i:nth-child(1){height:60%}.bars i:nth-child(2){height:100%}
+.bars i:nth-child(3){height:100%;background:rgba(30,38,25,.15);overflow:hidden}
+.bars i:nth-child(3)::before{content:"";position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--seg);transform-origin:right;animation:exhale 6s linear infinite}
+@keyframes exhale{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.bars+.cap{display:grid;grid-template-columns:1fr 1fr 4fr;gap:6px;font-size:10px;margin-top:6px}
+.dots{display:flex;gap:6px;margin-top:22px}
+.dots i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--seg)}
+.dots i.d{background:var(--seg)}
+.hap{display:flex;align-items:center;gap:10px;font:600 12px var(--sans);color:var(--ink2)}
+.hap i{display:inline-flex;gap:3px}
+.hap i b{width:3px;height:12px;background:var(--ink2);border-radius:2px;animation:vib 1.2s ease-in-out infinite}
+.hap i b:nth-child(2){animation-delay:.15s}.hap i b:nth-child(3){animation-delay:.3s}
+@keyframes vib{50%{transform:scaleY(.4)}}
+
+/* 5 하나만 */
+.slot{height:12px;background:#151514;border-radius:6px;margin:0 8px;position:relative;z-index:2}
+.receipt{background:#F6F4EE;margin:-6px 26px 0;padding:22px 18px 18px;font:700 11px/1.7 var(--mono);color:#3a3934;box-shadow:0 10px 16px -8px rgba(0,0,0,.35);animation:out 1s .3s ease-out both;position:relative}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:8px;background:linear-gradient(-45deg,transparent 5px,#F6F4EE 5px) 0 0/10px 8px,linear-gradient(45deg,transparent 5px,#F6F4EE 5px) 0 0/10px 8px}
+@keyframes out{from{transform:translateY(-60%);clip-path:inset(60% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+.receipt .t{display:flex;justify-content:space-between;color:#8a877f}
+.receipt h3{font:800 22px/1.35 var(--sans);letter-spacing:-.04em;color:var(--ink);margin:12px 0 10px}
+.receipt .line{border-top:1px dashed #b9b5ab;margin:10px 0}
+.receipt .rest{display:flex;justify-content:space-between}
+.dim{font:600 12.5px/1.6 var(--sans);color:var(--ink2);text-align:center}
+.dim b{color:var(--ink)}
+.big1{grid-template-columns:1fr;height:120px;margin-top:auto}
+.big1 .key{font-size:24px}
+.big1 .key .arr{position:absolute;right:16px;bottom:12px;font:800 30px var(--mono)}
+
+/* 6 결과 */
+.res .ft{font-size:12px;display:flex;justify-content:space-between}
+.res .tt{display:flex;align-items:center;gap:14px;margin:8px 0 6px}
+.res .tt span{font:400 64px/1 var(--lcdf);letter-spacing:-.05em}
+.res .tt span.a{opacity:.35;text-decoration:line-through;text-decoration-thickness:3px}
+.res .tt em{font-style:normal;font-size:26px}
+.res .msg{font-size:15px;line-height:1.6;border-top:1px solid rgba(30,38,25,.25);padding-top:8px;margin-top:6px}
+.tally{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tally div{background:var(--body2);border-radius:8px;padding:8px 8px 7px;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.tally b{display:block;font:800 22px var(--mono)}
+.tally span{font:700 10.5px var(--sans);color:var(--ink2)}
+.end{grid-template-columns:1fr 1fr;height:64px;margin-top:auto}
+.week{background:var(--body2);border-radius:8px;padding:10px 12px 8px;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.week .h{display:flex;justify-content:space-between;margin-bottom:8px}
+.week .g{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:74px;align-items:end}
+.week .g div{display:flex;gap:2px;align-items:end;height:100%;justify-content:center}
+.week .g i{width:8px;background:#a19e96;border-radius:1px}
+.week .g i+i{background:var(--ink)}
+.week .g div.t i+i{background:var(--blue)}
+.week .d{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;font:700 9.5px var(--sans);color:var(--ink2);margin-top:5px}
+</style>
+</head>
+<body>
+<header class="sheet-h">
+  <div><div class="tag">가치 재설계 · 시안 D 기반</div><h1>머리 식히는 기계</h1></div>
+  <p>할 일을 많이 해치우게 하는 기계가 아니라, <b>머릿속 열린 고리를 3분 안에 전부 닫아 주는 기계</b>. 하나하나에 '언제' 또는 '안 함'을 붙이고, 숨 한 번 내쉬고, 딱 하나만 뽑아 준다. 숫자판은 XP 대신 <b>닫은 고리</b> 수를 센다.</p>
+  <div class="vs"><s>XP · 콤보 · 크리티컬</s> → <b>닫은 고리</b><br><s>끝없는 클립 피드</s> → <b>딱 하나</b><br><s>쉬는 시간에도 화면</s> → <b>화면 꺼짐</b></div>
+</header>
+<div class="flow">
+  <div><i>01 · 5초</i><b>온도</b>지금 머리 몇 도?</div>
+  <div><i>02 · 60초</i><b>비우기</b>막 쏟아내기</div>
+  <div><i>03 · 60초</i><b>분류</b>한 장씩 4칸에 딸깍</div>
+  <div><i>04 · 60초 · 선택</i><b>식히기</b>두 번 들이쉬고 길게</div>
+  <div><i>05</i><b>하나만</b>영수증 한 장, 화면 꺼짐</div>
+  <div><i>06</i><b>다시 온도</b>7 → 4</div>
+</div>
+
+<div class="row">
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps"><i class="now"></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="lcd">
+      <div class="st"><span>머리 온도</span><i>지금</i></div>
+      <div class="temp"><div class="n">7</div><div class="u">/ 10<br>꽤 뜨거움</div></div>
+      <div class="thermo"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i></div>
+      <div class="sc"><span>0 조용</span><span>10 터질 듯</span></div>
+    </div>
+    <div class="bigknob">
+      <div class="tk">
+        <span style="transform:rotate(135deg) translate(92px) rotate(-135deg) translate(-50%,-50%)">0</span>
+        <span style="transform:rotate(162deg) translate(92px) rotate(-162deg) translate(-50%,-50%)">1</span>
+        <span style="transform:rotate(189deg) translate(92px) rotate(-189deg) translate(-50%,-50%)">2</span>
+        <span style="transform:rotate(216deg) translate(92px) rotate(-216deg) translate(-50%,-50%)">3</span>
+        <span style="transform:rotate(243deg) translate(92px) rotate(-243deg) translate(-50%,-50%)">4</span>
+        <span style="transform:rotate(270deg) translate(92px) rotate(-270deg) translate(-50%,-50%)">5</span>
+        <span style="transform:rotate(297deg) translate(92px) rotate(-297deg) translate(-50%,-50%)">6</span>
+        <span class="on" style="transform:rotate(324deg) translate(92px) rotate(-324deg) translate(-50%,-50%)">7</span>
+        <span style="transform:rotate(351deg) translate(92px) rotate(-351deg) translate(-50%,-50%)">8</span>
+        <span style="transform:rotate(378deg) translate(92px) rotate(-378deg) translate(-50%,-50%)">9</span>
+        <span style="transform:rotate(405deg) translate(92px) rotate(-405deg) translate(-50%,-50%)">10</span>
+      </div>
+      <div class="k"></div>
+    </div>
+    <span class="eng">지금 기분 한 단어 · 안 눌러도 됨</span>
+    <div class="keys feel"><button class="key down">막막<span class="led on"></span></button><button class="key">불안</button><button class="key">짜증</button><button class="key">지침</button></div>
+    <div class="keys ok"><button class="key blue">쏟아내기로<small>5초</small></button></div>
+  </div>
+</div>
+<figcaption><b>01 온도</b> — 노브를 돌려 머리 온도, 감정은 한 단어만.<em>측정 기준 + 감정 이름 붙이기 · Lieberman 2007</em></figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps"><i class="on"></i><i class="now"></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="lcd" style="flex:1">
+      <div class="st"><span>비우기 · 막 써도 됨</span><i>0:41</i></div>
+      <p>레포트 금요일까지 3장 시작도 안 함</p>
+      <p>엄마한테 전화</p>
+      <p>방 개판</p>
+      <p>택배 반품 언제까지더라</p>
+      <p>단톡 답장 안 했음</p>
+      <p>다음 달 월세 오르면 어떡하지</p>
+      <p>헬스 등록할까 말까</p>
+      <p>교수님 메일 답장<span class="cur"></span></p>
+    </div>
+    <div class="meter">
+      <div><div class="eng" style="margin-bottom:6px">머릿속 열린 고리</div><div class="odo"><span>0</span><span>1</span><span>2</span></div></div>
+      <div class="eng" style="text-align:right;line-height:1.7">한 줄 = 고리 하나<br>AI가 묶고 나눔</div>
+    </div>
+    <div class="keys" style="grid-template-columns:1fr 2fr;height:84px">
+      <button class="key"><small>EX</small>예시</button>
+      <button class="key blue"><small>12개 → 4칸</small>정리하기</button>
+    </div>
+  </div>
+</div>
+<figcaption><b>02 비우기</b> — 머릿속에 있는 걸 전부 밖으로.<em>인지적 오프로딩 · Risko &amp; Gilbert 2016 · Klein &amp; Boals 2001</em></figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps"><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i></div></div>
+    <div class="lcd card">
+      <div class="st"><span>분류 · 5 / 12</span><i>한 장씩</i></div>
+      <div class="stack"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <h2>다음 달 월세<br>오르면 어떡하지</h2>
+      <div class="sug">제안 ▸ <b>내 손 밖</b><br>지금 할 수 있는 게 없음 · 걱정 시간(21:30)에 다시 보여 줄게</div>
+    </div>
+    <div class="meter">
+      <div><div class="eng" style="margin-bottom:6px">닫은 고리</div><div class="odo"><span>0</span><span>0</span><span class="r">4</span></div></div>
+      <div class="eng" style="text-align:right;line-height:1.7">남은 카드 8장<br>약 40초</div>
+    </div>
+    <div class="keys chute">
+      <button class="key"><small>NOW</small>지금<span class="cnt">1</span></button>
+      <button class="key"><small>DATE · 언제·어디서</small>날짜 박기<span class="cnt">2</span></button>
+      <button class="key down"><small>OUT · 걱정 시간</small>내 손 밖<span class="led on"></span><span class="cnt">0</span></button>
+      <button class="key"><small>DROP</small>버리기<span class="cnt">1</span></button>
+    </div>
+    <div class="keys ok"><button class="key blue">제안대로 딸깍<small>↑ 밀어도 됨</small></button></div>
+  </div>
+</div>
+<figcaption><b>03 분류</b> — 카드가 한 장씩, AI 제안이 맞으면 딸깍.<em>구체적 계획 = 침투 사고 소멸 · Masicampo &amp; Baumeister 2011 · 걱정 미루기 McGowan &amp; Behar 2013</em></figcaption>
+</figure>
+</div>
+
+<div class="row">
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i></div></div>
+    <div class="lcd breath">
+      <div class="lbl"><span>식히기</span><span>3 / 5</span></div>
+      <div class="ph">이제 입으로<br>길—게 내쉬기</div>
+      <div class="bars"><i></i><i></i><i></i></div>
+      <div class="cap"><span>코로 훅</span><span>한 번 더</span><span>입으로 천천히</span></div>
+      <div class="dots"><i class="d"></i><i class="d"></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="hap"><i><b></b><b></b><b></b></i>눈 감아도 됨 · 진동이 박자를 알려 줌</div>
+    <div class="meter">
+      <div><div class="eng" style="margin-bottom:6px">닫은 고리</div><div class="odo"><span>0</span><span>1</span><span>2</span></div></div>
+      <div class="eng" style="text-align:right;line-height:1.7">12개 전부 자리 찾음<br>지금 1 · 날짜 6 · 손 밖 3 · 버림 2</div>
+    </div>
+    <div class="keys" style="grid-template-columns:1fr;height:62px"><button class="key"><small>SKIP</small>건너뛰기</button></div>
+  </div>
+</div>
+<figcaption><b>04 식히기</b> — 두 번 들이쉬고 길게 내쉬기 다섯 번, 1분.<em>cyclic sighing &gt; 명상 (기분·호흡수) · Balban et al. 2023</em></figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="now"></i><i></i></div></div>
+    <div class="lcd off">
+      <div class="st"><span>화면 꺼짐</span><i>2:00</i></div>
+      <p style="font-size:13px">폰 엎어 두고 하고 와.</p>
+    </div>
+    <div>
+      <div class="slot"></div>
+      <div class="receipt">
+        <div class="t"><span>UD-1 · 지금 할 단 하나</span><span>21:04</span></div>
+        <h3>노트북 열고<br>레포트 파일에<br>제목만 쓰기</h3>
+        <div>첫 동작 — 노트북 화면 켜기<br>예상 2분 · 안 끝나도 됨</div>
+        <div class="line"></div>
+        <div class="rest"><span>나머지 11개</span><span>전부 '언제' 정해짐</span></div>
+      </div>
+    </div>
+    <p class="dim">다 하면 큰 버튼. 막히면 길게 눌러 <b>더 잘게</b>.</p>
+    <div class="keys big1"><button class="key blue"><small>DONE</small>끝냈다<span class="arr">↑</span></button></div>
+  </div>
+</div>
+<figcaption><b>05 하나만</b> — 피드 대신 영수증 한 장, 화면은 꺼진다.<em>시작 장벽 = 싫은 기분 · Steel 2007, Eckert 2016 · 폰 휴식은 회복 최하 · Kang &amp; Kurtzberg 2019</em></figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="now"></i></div></div>
+    <div class="lcd res">
+      <div class="ft"><span>다시 온도</span><span>3분 12초</span></div>
+      <div class="tt"><span class="a">7</span><em>→</em><span>4</span></div>
+      <div class="msg">오늘 머리에서 12개를 내려놨어.<br>다음 건 내일 10:00 책상에서.</div>
+    </div>
+    <div class="meter">
+      <div><div class="eng" style="margin-bottom:6px">누적 닫은 고리</div><div class="odo"><span>0</span><span>2</span><span class="r">4</span><span class="r">7</span></div></div>
+      <div class="eng" style="text-align:right;line-height:1.7">이번 주 평균<br>온도 −2.6</div>
+    </div>
+    <div class="tally">
+      <div><b>1</b><span>지금 · 끝</span></div>
+      <div><b>6</b><span>날짜 박음</span></div>
+      <div><b>3</b><span>손 밖</span></div>
+      <div><b>2</b><span>버림</span></div>
+    </div>
+    <div class="week">
+      <div class="h"><span class="eng">이번 주 · 회색 = 전, 검정 = 후</span><span class="eng">세션 9회</span></div>
+      <div class="g">
+        <div><i style="height:80%"></i><i style="height:50%"></i></div>
+        <div><i style="height:60%"></i><i style="height:40%"></i></div>
+        <div></div>
+        <div><i style="height:90%"></i><i style="height:50%"></i></div>
+        <div><i style="height:70%"></i><i style="height:40%"></i></div>
+        <div><i style="height:50%"></i><i style="height:30%"></i></div>
+        <div class="t"><i style="height:70%"></i><i style="height:40%"></i></div>
+      </div>
+      <div class="d"><span>목</span><span>금</span><span>토</span><span>일</span><span>월</span><span>화</span><span style="color:var(--ink)">오늘</span></div>
+    </div>
+    <div class="keys end"><button class="key"><small>ONE MORE</small>하나 더</button><button class="key dark"><small>OFF</small>기계 끄기</button></div>
+  </div>
+</div>
+<figcaption><b>06 다시 온도</b> — 기록은 온도 변화와 닫은 고리뿐. 칭찬은 사실만.<em>긍정 피드백 d=+.33, 보상 d=−.36 · Deci et al. 1999</em></figcaption>
+</figure>
+</div>
+</body>
+</html>

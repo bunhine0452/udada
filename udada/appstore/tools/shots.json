@@ -1,0 +1,70 @@
+[
+ {
+  "file": "01-today.png",
+  "label": "하루 한 장",
+  "headline": "하루를 세 칸에,\n지금 할 일 하나",
+  "support": "약속은 시각에, 할 일은 아침·낮·저녁에.\n다음 약속까지 남은 시간에 들어갈 일을 골라 줘요.",
+  "shot": "today.png"
+ },
+ {
+  "file": "02-split.png",
+  "theme": "cobalt",
+  "fit": "full",
+  "label": "Apple Intelligence",
+  "headline": "한 줄에 쏟아내면\n알아서 나눠 넣어요",
+  "support": "떠오르는 대로 한 줄에 적으면 돼요.\n넣기 전에 어디로 갈지 먼저 보여 줘요.",
+  "shot": "split.png"
+ },
+ {
+  "file": "03-siri.png",
+  "theme": "ink",
+  "fit": "full",
+  "label": "Siri · 앱 안 사용법 장면",
+  "headline": "앱을 열지 않고\nSiri에게 한 문장",
+  "support": "“우다다한테 시키기” · “우다다로 정리해 줘”.\n여러 일을 한 번에 바꾸고 결과를 보여 줘요.",
+  "shot": "siri.png"
+ },
+ {
+  "file": "04-ai.png",
+  "label": "Apple Intelligence",
+  "headline": "말로, 사진으로,\n받은 글로",
+  "support": "쏟아내기 · 사진에서 일정 읽기 · 물어보고 시키기.\n지원 기기에서 모두 iPhone 안에서만 처리해요.",
+  "shot": "aipanel.png"
+ },
+ {
+  "file": "05-rest.png",
+  "theme": "ink",
+  "label": "식히기",
+  "headline": "머리가 뜨거우면\n1분만",
+  "support": "1분 숨 고르기 · 3분 멀리 보기 · 10분 걷기.\n고르면 바로 시작하고, 화면엔 볼 게 없어요.",
+  "shot": "rest-pick.png"
+ },
+ {
+  "file": "06-close.png",
+  "label": "하루 닫기",
+  "headline": "남은 일엔 자리만,\n오늘은 여기까지",
+  "support": "내일 · 나중에 · 안 해 중 하나씩 고르면\n「오늘 끝」 도장을 찍어요.",
+  "shot": "close-stamp.png"
+ },
+ {
+  "file": "07-widgets.png",
+  "custom": "widgets",
+  "label": "위젯 · 실시간 현황 · Siri",
+  "headline": "앱을 열지 않아도\n오늘이 보여요",
+  "support": "홈 화면에서 끝내고, 잠금 화면에서 남은 시간을 보고,\nSiri에게 말로 시켜요."
+ },
+ {
+  "file": "08-records.png",
+  "label": "기록",
+  "headline": "점수 대신\n사실만",
+  "support": "끝낸 비율, 예상 대 실제, 12주 칸.\n연속 기록도 레벨도 없어요.",
+  "shot": "records.png"
+ },
+ {
+  "file": "09-evidence.png",
+  "label": "근거 · 개인정보",
+  "headline": "연구를 읽고\n만든 하루",
+  "support": "출처는 설정 → 근거 보기에. 계정·광고·추적 없이\n기록은 내 기기와 내 iCloud에만 남아요.",
+  "shot": "evidence.png"
+ }
+]

@@ -1,0 +1,198 @@
+[
+ {
+  "q": "다음 주에 병원 언제야?",
+  "words": [
+   "병원"
+  ],
+  "span": "nextWeek",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "지난주에 끝낸 운동 몇 번이야",
+  "words": [
+   "운동"
+  ],
+  "span": "lastWeek",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "오늘 남은 할 일 뭐 있어",
+  "words": [],
+  "span": "today",
+  "state": "open",
+  "kind": "any"
+ },
+ {
+  "q": "이번 주 약속 보여 줘",
+  "words": [],
+  "span": "thisWeek",
+  "state": "any",
+  "kind": "event"
+ },
+ {
+  "q": "치과 언제였지",
+  "words": [
+   "치과"
+  ],
+  "span": "past",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "걱정 뭐 넣어 놨더라",
+  "words": [],
+  "span": "any",
+  "state": "any",
+  "kind": "worry"
+ },
+ {
+  "q": "나중에 하려고 미뤄 둔 거 뭐 있지",
+  "words": [],
+  "span": "any",
+  "state": "any",
+  "kind": "later"
+ },
+ {
+  "q": "내일 회의 몇 시야",
+  "words": [
+   "회의"
+  ],
+  "span": "tomorrow",
+  "state": "any",
+  "kind": "event"
+ },
+ {
+  "q": "이번 달에 끝낸 보고서",
+  "words": [
+   "보고서"
+  ],
+  "span": "thisMonth",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "엄마 생신 선물 샀던가",
+  "words": [
+   "선물"
+  ],
+  "span": "past",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "세탁소 다녀온 게 며칠이더라",
+  "words": [
+   "세탁소"
+  ],
+  "span": "past",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "앞으로 남은 약속",
+  "words": [],
+  "span": "upcoming",
+  "state": "open",
+  "kind": "event"
+ },
+ {
+  "q": "어제 못 한 일",
+  "words": [],
+  "span": "yesterday",
+  "state": "open",
+  "kind": "any"
+ },
+ {
+  "q": "여권 갱신 넣어 놨나",
+  "words": [
+   "여권"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "다음 주 화요일쯤 뭐 있었던 것 같은데",
+  "words": [],
+  "span": "nextWeek",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "지난달에 운동 얼마나 했어",
+  "words": [
+   "운동"
+  ],
+  "span": "lastMonth",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "택배 관련해서 적어 둔 거",
+  "words": [
+   "택배"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "이번 주에 아직 안 끝낸 것들",
+  "words": [],
+  "span": "thisWeek",
+  "state": "open",
+  "kind": "any"
+ },
+ {
+  "q": "월세 걱정 적어 놨었나",
+  "words": [
+   "월세"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "worry"
+ },
+ {
+  "q": "팀 회식 날짜가 언제더라",
+  "words": [
+   "회식"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "요즘 내가 다 해치운 일들 좀 보자",
+  "words": [],
+  "span": "past",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "모레 이후로 잡힌 미팅",
+  "words": [
+   "미팅"
+  ],
+  "span": "upcoming",
+  "state": "any",
+  "kind": "event"
+ },
+ {
+  "q": "기획서 마감이 언제지",
+  "words": [
+   "기획서"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "오늘 뭐 끝냈지",
+  "words": [],
+  "span": "today",
+  "state": "done",
+  "kind": "any"
+ }
+]

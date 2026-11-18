@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우다다 — 뇌 리프레시</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbit&family=JetBrains+Mono:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="machine.css">
+<style>
+/* 뇌 리프레시: 상태 → 맑기·시간 → 처방 한 장 → 화면 꺼짐 타이머 → 돌아옴 → 결과. 근거와 처방표는 REFRESH.md. */
+.ask{font:400 1.5625rem/1.3 var(--lcdf);letter-spacing:-.04em;margin:2px 0 0.375rem}
+.ask+p{font-size:0.7188rem;line-height:1.6;opacity:.85}
+.pick{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;flex:1;min-height:15rem;max-height:25rem}
+/* 첫 실행 소개 */
+.intro .big{font:400 1.75rem/1.3 var(--lcdf);letter-spacing:-.04em;margin:0.25rem 0 0.25rem}
+.how{display:grid;gap:0.625rem;flex:none;margin:auto 0}
+.how div{display:grid;grid-template-columns:2rem 1fr;gap:0.25rem 0.625rem;align-items:start;background:var(--body2);border-radius:0.5rem;padding:0.75rem 0.875rem;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.how b{grid-row:span 2;font:800 1.125rem var(--mono);color:var(--blue)}
+.how strong{font:800 0.9375rem/1.3 var(--sans);letter-spacing:-.03em}
+.how span{font:500 0.75rem/1.5 var(--sans);color:var(--ink2)}
+.fine{font:500 0.6875rem/1.55 var(--sans);color:var(--ink2);text-align:center;flex:none}
+/* 기록 추이 (홈·결과) */
+.hist{background:var(--body2);border-radius:0.5rem;padding:0.625rem 0.75rem 0.5rem;box-shadow:inset 0 1px 2px rgba(0,0,0,.15);flex:none}
+.hist .h{display:flex;justify-content:space-between;gap:0.5rem}
+.hist .g{display:flex;gap:0.375rem;height:3.25rem;align-items:flex-end;margin-top:0.5rem}
+.hist .g div{flex:1;display:flex;gap:2px;align-items:flex-end;justify-content:center;height:100%;max-width:1.75rem}
+.hist .g i{width:40%;background:#a19e96;border-radius:1px;min-height:2px}
+.hist .g i+i{background:var(--ink)}
+.hist .g div.last i+i{background:var(--blue)}
+.hist .best{font:700 0.75rem/1.5 var(--sans);margin-top:0.375rem}
+.hist .best em{font-style:normal;color:var(--blue)}
+.hist .empty{font:600 0.75rem/1.6 var(--sans);color:var(--ink2);margin-top:0.25rem}
+.pick .key{justify-content:flex-start;gap:0.375rem;padding:0.75rem 0.875rem}
+.pick .key b{font:800 1.6875rem var(--sans);letter-spacing:-.06em;margin-top:auto}
+.pick .key span{font:600 0.7188rem/1.4 var(--sans);color:var(--ink2)}
+.times{grid-template-columns:.55fr 1fr 1fr 1fr;min-height:4.625rem;margin-top:auto}
+.times .key b{font:800 1.375rem var(--mono);letter-spacing:-.04em}
+.times .key b em{font:700 0.75rem var(--sans);font-style:normal;margin-left:2px}
+.times .back{justify-content:center;align-items:center;font-size:1.125rem}
+
+#rxName{font:800 1.5625rem/1.25 var(--sans);letter-spacing:-.05em;color:var(--ink);margin:0.625rem 0 0.5rem}
+.rxsteps{list-style:none;padding:0;margin:0;display:grid;gap:0.1875rem}
+.rxsteps li{display:flex;justify-content:space-between;gap:0.75rem;font:700 0.7812rem/1.5 var(--sans);color:var(--ink)}
+.rxsteps li span:last-child{font:700 0.6875rem/1.7 var(--mono);color:#8a877f;flex:none}
+#rxWhy{font:500 0.75rem/1.6 var(--sans);color:#45433e}
+#rxCite{font:700 0.625rem/1.6 var(--mono);color:#8a877f;margin-top:0.25rem}
+.bm input{all:unset;display:block;width:100%;min-height:2.75rem;font:400 max(16px,1rem)/1.5 var(--lcdf);color:var(--seg);user-select:text;-webkit-user-select:text}
+.bm input::placeholder{color:rgba(30,38,25,.42)}
+#rxHint{min-height:1.25rem}
+.go2{grid-template-columns:1fr 2fr;min-height:4.625rem;margin-top:auto}
+#sRx>.kb-hide{margin-top:auto!important}
+#sDial .bigknob,#sAfter .bigknob{margin:auto}
+.kb-only{display:none;font:700 0.75rem var(--sans);margin:-0.125rem 0 0.375rem}
+.kb .kb-only{display:block}
+.go2 .key.blue{font-size:1.25rem}
+
+#runT{font:400 4.875rem/1 var(--lcdf);letter-spacing:-.04em;margin:1.625rem 0 0.875rem;color:#a9b69c}
+#runStep{font-size:1.125rem;line-height:1.5;color:#a9b69c}
+#runPh{font-size:1.75rem;line-height:1.3;min-height:2.375rem;margin-top:1rem;color:#cfdcc0}
+.segs{display:flex;gap:0.25rem;margin-top:auto}
+.segs i{flex:1;height:0.25rem;background:rgba(255,255,255,.1)}
+.segs i.d{background:#7d8873}
+.segs i.now{background:#a9b69c}
+
+.strip{background:var(--paper);padding:0.75rem 1rem 0.875rem;box-shadow:0 0.5rem 0.875rem -0.5rem rgba(0,0,0,.3);flex:none;margin:0 0.375rem}
+.strip small{display:block;font:700 0.6562rem var(--mono);color:#8a877f;margin-bottom:0.25rem}
+.strip b{font:800 1.1875rem/1.35 var(--sans);letter-spacing:-.04em;overflow-wrap:anywhere}
+
+.res .tt{display:flex;align-items:center;gap:0.875rem;margin:0.375rem 0 0.25rem}
+.res .tt span{font:400 3.625rem/1 var(--lcdf);letter-spacing:-.05em}
+.res .tt span.a{opacity:.35;text-decoration:line-through;text-decoration-thickness:0.1875rem}
+.res .tt em{font-style:normal;font-size:1.5rem}
+.res .tt strong{font:400 1.375rem var(--lcdf);margin-left:auto}
+#resMsg{font-size:0.8438rem;line-height:1.65;border-top:1px solid rgba(30,38,25,.25);padding-top:0.5rem;margin-top:0.375rem}
+.rank{background:var(--body2);border-radius:0.5rem;padding:0.625rem 0.75rem;box-shadow:inset 0 1px 2px rgba(0,0,0,.15);flex:none}
+.rank .row{display:grid;grid-template-columns:1fr 2.875rem 2.125rem;gap:0.5rem;align-items:center;font:700 0.8125rem/1.9 var(--sans);border-top:1px dashed #b5b2aa}
+.rank .row:first-of-type{border-top:0}
+.rank .row span{font:800 0.75rem var(--mono);text-align:right;color:var(--ink2)}
+.rank .row span.v{color:var(--ink)}
+.rank .row.cur{color:var(--blue)}
+.rank .row.cur span.v{color:var(--blue)}
+.rank .none{font:600 0.75rem/1.6 var(--sans);color:var(--ink2)}
+</style>
+</head>
+<body>
+
+<aside class="note">
+  <div class="tag">우다다 · 동작 프로토타입</div>
+  <h1>뇌 리프레시</h1>
+  <p>"뇌가 안 돌아간다"는 한 상태가 아니다. <b>졸림 · 과부하 · 피로 · 막힘</b>은 듣는 처방이 다르다. 두 번 탭으로 고르면 처방 한 장이 나오고, 화면은 꺼진다. 처방은 전부 <b>화면 밖에서</b> 한다.</p>
+  <h2>근거 몇 개 (전체는 REFRESH.md)</h2>
+  <ul>
+    <li>하루 종일 어려운 일을 하면 외측 전전두엽에 글루타메이트가 쌓이고 집중 비용이 오른다 <small>Wiehler 2022</small></li>
+    <li>10분 낮잠이 바로 듣고 2시간 넘게 간다. 30분은 깨고 나서 더 멍하다 <small>Brooks &amp; Lack 2006</small></li>
+    <li>막혔을 땐 쉬기보다 머리 안 쓰는 딴짓이 낫다 <small>Baird 2012</small></li>
+    <li>쉬기 전에 '돌아오면 먼저 할 것'을 적으면 주의가 덜 남는다 <small>Leroy &amp; Glomb 2018</small></li>
+    <li>폰으로 쉬면 회복이 가장 적다 <small>Kang &amp; Kurtzberg 2019</small></li>
+  </ul>
+  <h2>정직하게</h2>
+  <p>효과는 대부분 작다(g .1~.35). 그래서 처방 전후 맑기를 이 기기에 남기고, <b>나한테 무엇이 잘 듣는지</b>를 같은 사람 안에서 비교한다. 의지력이 배터리처럼 닳는다는 말은 재현되지 않았다(Hagger 2016). 그래서 '방전'이라는 말은 쓰지 않는다.</p>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="sb"><span id="clock">9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-R</sub></b><div class="steps" id="steps"><i></i><i></i><i></i><i></i><i></i></div></div>
+
+    <!-- 0 첫 실행 소개 -->
+    <section id="sIntro" class="intro">
+      <div class="lcd">
+        <div class="st"><span>우다다 · 뇌 리프레시</span><i>처음</i></div>
+        <div class="big">머리가 안 돌아갈 때<br>2~20분 만에<br>다시 돌게.</div>
+      </div>
+      <div class="how">
+        <div><b>1</b><strong>어느 쪽인지 고른다</strong><span>졸림 · 꽉 참 · 멍함 · 막힘은 듣는 처방이 달라.</span></div>
+        <div><b>2</b><strong>근거 있는 처방 한 장</strong><span>폰은 내려놓고 몸으로 해. 끝나면 소리로 불러 줄게.</span></div>
+        <div><b>3</b><strong>돌아와서 맑기를 다시 잰다</strong><span>쓸수록 나한테 뭐가 잘 듣는지 쌓여.</span></div>
+      </div>
+      <p class="fine" style="margin-top:auto">치료는 아니야. 효과는 사람마다 달라서, 그래서 매번 재.</p>
+      <div class="keys" style="grid-template-columns:1fr;min-height:4.125rem"><button class="key blue" id="kIntro"><small>첫 처방까지 30초</small>바로 해 보기</button></div>
+    </section>
+
+    <!-- 1 상태 -->
+    <section id="sState">
+      <div class="lcd">
+        <div class="st"><span>뇌 리프레시</span><i>지금</i></div>
+        <div class="ask">머리가 어느 쪽으로<br>안 돌아가?</div>
+        <p>고르면 처방 한 장. 고장 난 게 아니라 '바꿔 달라'는 신호야.</p>
+      </div>
+      <div class="keys pick" id="pick">
+        <button class="key" data-s="sleepy"><small>SLEEPY</small><b>졸려</b><span>눈이 감김 · 잠 부족</span></button>
+        <button class="key" data-s="full"><small>FULL</small><b>꽉 찼어</b><span>할 게 머리에 가득</span></button>
+        <button class="key" data-s="foggy"><small>FOGGY</small><b>멍해</b><span>오래 집중해서 안 돌아감</span></button>
+        <button class="key" data-s="stuck"><small>STUCK</small><b>막혔어</b><span>한 문제에서 맴돎</span></button>
+      </div>
+      <div class="hist" id="hist" style="margin-top:auto"></div>
+    </section>
+
+    <!-- 2 맑기 + 시간 -->
+    <section id="sDial">
+      <div class="lcd">
+        <div class="st"><span id="dialLbl">머리 맑기</span><i>지금</i></div>
+        <div class="temp"><div class="n" id="clrN">4</div><div class="u">/ 10<br><span id="clrWord">흐릿함</span></div></div>
+        <div class="thermo" id="clrBar"></div>
+        <div class="sc"><span>0 안 돌아감</span><span>10 쌩쌩</span></div>
+      </div>
+      <div class="bigknob" id="knob1" aria-label="머리 맑기"></div>
+      <span class="eng">시간 얼마나 있어?</span>
+      <div class="keys times" id="times">
+        <button class="key back" id="kBack1" aria-label="상태 다시 고르기">←</button>
+        <button class="key" data-m="2"><small>잠깐</small><b>2<em>분</em></b></button>
+        <button class="key" data-m="10"><small>보통</small><b>10<em>분</em></b></button>
+        <button class="key" data-m="20"><small>여유</small><b>20<em>분</em></b></button>
+      </div>
+    </section>
+
+    <!-- 3 처방 -->
+    <section id="sRx">
+      <div class="kb-hide" style="display:flex;flex-direction:column;flex:none;margin-top:0.375rem">
+        <div class="slot"></div>
+        <div class="receipt" id="receipt">
+          <div class="t"><span id="rxHead">UD-R · 처방</span><span id="rxTime">--:--</span></div>
+          <div id="rxName"></div>
+          <ol class="rxsteps" id="rxSteps"></ol>
+          <div class="line"></div>
+          <div id="rxWhy"></div>
+          <div id="rxCite"></div>
+        </div>
+      </div>
+      <div class="lcd bm" id="bmBox">
+        <div class="st"><span id="bmLbl">돌아오면 먼저 할 것</span><i>안 써도 됨</i></div>
+        <div class="kb-only" id="bmRx"></div>
+        <input id="bmIn" maxlength="60" autocomplete="off" placeholder="예) 레포트 3장 첫 문장">
+      </div>
+      <p class="dim kb-hide" id="rxHint"></p>
+      <div class="keys go2">
+        <button class="key" id="kAlt"><small>CONTROL</small>다른 거</button>
+        <button class="key blue" id="kStart"><small id="kStartS">화면 꺼짐</small>시작 ▶</button>
+      </div>
+    </section>
+
+    <!-- 4 실행 -->
+    <section id="sRun">
+      <div class="lcd off grow">
+        <div class="st"><span id="runLbl">화면 꺼짐</span><i id="runIdx">1 / 1</i></div>
+        <div id="runT">0:00</div>
+        <div id="runStep"></div>
+        <div id="runPh"></div>
+        <div class="segs" id="segs"></div>
+      </div>
+      <p class="dim">폰 엎어 둬. 끝나면 소리와 진동으로 부를게.</p>
+      <div class="keys" style="grid-template-columns:1fr;min-height:3.875rem"><button class="key" id="kStop"><small>STOP</small>그만, 돌아왔어</button></div>
+    </section>
+
+    <!-- 5 돌아옴 -->
+    <section id="sAfter">
+      <div class="strip" id="bmShow"><small id="bmShowLbl">돌아오면 먼저</small><b id="bmShowT"></b></div>
+      <div class="lcd">
+        <div class="st"><span id="afterLbl">다시 맑기</span><i>지금은?</i></div>
+        <div class="temp"><div class="n" id="clr2N">4</div><div class="u">/ 10<br><span id="clr2Word">흐릿함</span></div></div>
+        <div class="thermo" id="clr2Bar"></div>
+      </div>
+      <div class="bigknob" id="knob2" aria-label="다시 머리 맑기"></div>
+      <div class="keys" style="grid-template-columns:1fr;min-height:4.125rem;margin-top:auto"><button class="key blue" id="kSave"><small>전후만 남음</small>기록하기</button></div>
+    </section>
+
+    <!-- 6 결과 -->
+    <section id="sRes">
+      <div class="lcd res">
+        <div class="st"><span id="resLbl">리프레시</span><i id="resTime">0:00</i></div>
+        <div class="tt"><span class="a" id="resB">4</span><em>→</em><span id="resA">7</span><strong id="resD">+3</strong></div>
+        <div id="resMsg"></div>
+      </div>
+      <div class="hist" id="hist2"></div>
+      <div class="rank" id="rank"></div>
+      <div class="strip" id="nextShow" style="margin-top:auto"><small>이제 할 것</small><b id="nextT"></b></div>
+      <div class="keys" id="resKeys" style="grid-template-columns:1fr;min-height:3.875rem"><button class="key dark" id="kHome"><small id="kHomeS">OFF</small><span id="kHomeT">처음으로</span></button></div>
+    </section>
+  </div>
+</div>
+
+<script src="machine.js"></script>
+<script>
+(() => {
+  const { store, motor, chime, buzz, odo, mmss, hhmm, esc } = UD;
+  const $ = id => document.getElementById(id);
+  const q = new URLSearchParams(location.search);
+  const SPEED = Math.max(1, +q.get('speed') || 1);
+  const HOUR = q.has('hour') ? +q.get('hour') : new Date().getHours();
+  const K = { sessions: 'udada.refresh.sessions', pending: 'udada.refresh.pending' };
+  const WORDS = ['안 돌아감', '안 돌아감', '안 돌아감', '흐릿함', '흐릿함', '그럭저럭', '그럭저럭', '맑음', '맑음', '쌩쌩', '쌩쌩'];
+  const STATE = { sleepy: '졸려', full: '꽉 찼어', foggy: '멍해', stuck: '막혔어' };
+  UD.clock($('clock'));
+
+  // ── 처방 (근거: REFRESH.md 2장). steps: [할 일, 초, 'breath'?]. bm: 책갈피 종류
+  const RX = {
+    splash: { name: '찬물 세수 + 밝은 데', steps: [['찬물로 얼굴 씻기', 40], ['창가나 제일 밝은 불 아래 서 있기', 45], ['계단 한 층 오르내리기 (없으면 제자리 걷기)', 35]],
+      why: '세수는 졸림을 바로 줄이지만 오래가진 않아. 짧은 계단 걷기는 저용량 카페인보다 활력을 더 올렸어.', cite: 'Hayashi 2003 · Randolph & O’Connor 2017', bm: 'resume' },
+    nap10: { name: '10분 낮잠', steps: [['엎드리거나 기대서 눈 감기. 잠 안 들어도 괜찮아', 600]],
+      why: '10분 낮잠이 5·20·30분보다 바로 들었고 2시간 넘게 갔어. 30분은 깨고 나서 오히려 더 멍했어. 일어나면 바로 세수나 밝은 데로.', cite: 'Brooks & Lack 2006 · Dutheil 2021 메타', bm: 'resume' },
+    coffeeNap: { name: '커피 낮잠', steps: [['커피 빨리 마시기 (반 잔이면 충분)', 60], ['눈 감고 엎드리기. 카페인은 20분쯤 뒤에 돌아', 1080], ['일어나서 찬물 세수, 밝은 데로', 60]],
+      why: '낮잠 직전 카페인이 낮잠+밝은 빛, 낮잠+세수보다 졸림과 수행 모두 좋았어. 표본은 작아(N=10).', cite: 'Hayashi 2003', bm: 'resume' },
+    nap15: { name: '15분 낮잠 + 세수', steps: [['눈 감고 엎드리기', 900], ['일어나서 찬물 세수', 60]],
+      why: '오후 4시가 넘어서 커피는 뺐어. 잠들기 6시간 전 카페인도 밤잠을 줄였어. 낮잠은 30분을 넘기지 않게.', cite: 'Drake 2013 · Brooks & Lack 2006', bm: 'resume' },
+    sigh: { name: '숨 다섯 번 + 먼 데', steps: [['두 번 들이쉬고 길게 내쉬기 ×5', 45, 'breath'], ['창밖 제일 먼 데 보기. 초록이면 더 좋아', 40]],
+      why: '두 번 들이쉬고 길게 내쉬기가 명상보다 기분을 더 올렸어. 40초 동안 초록을 본 쪽이 주의를 더 잘 지켰어.', cite: 'Balban 2023 · Lee 2015', bm: null },
+    stretch: { name: '일어나서 멀리 보기', steps: [['일어나서 기지개, 어깨 돌리기', 30], ['창밖 먼 데 보기', 40], ['두 번 들이쉬고 길게 내쉬기 ×3', 26, 'breath'], ['물 한 모금', 20]],
+      why: '짧은 휴식만으로도 활력이 오르고 피로가 줄었어. 한 목표에서 잠깐 벗어나면 집중이 다시 살아나.', cite: 'Albulescu 2022 메타 · Ariga & Lleras 2011', bm: 'resume' },
+    cooler: { name: '머리 비우기 3분', ext: 'cooler.html?from=refresh', steps: [['머릿속 거 전부 쏟아내기', 60], ['한 장씩 지금 / 날짜 / 손 밖 / 버리기', 60], ['숨 다섯 번, 하나만 뽑기', 60]],
+      why: '안 끝난 일에 구체적인 계획만 붙여도 침투 사고가 사라졌어. 끝낼 필요는 없었어.', cite: 'Masicampo & Baumeister 2011 · Scullin 2018', bm: null },
+    walk10: { name: '밖으로 10분', steps: [['폰은 주머니에. 밖이나 계단으로 걷기', 600]],
+      why: '오래 집중하면 앞이마 쪽 조절 회로에 글루타메이트가 쌓여 집중 비용이 올라가. 자연 속 걷기가 도심 걷기보다 주의를 더 회복시켰고, 폰으로 쉰 쪽이 회복이 가장 적었어.', cite: 'Wiehler 2022 · Berman 2008 · Kang & Kurtzberg 2019', bm: 'resume' },
+    rest10: { name: '눈 감고 10분', steps: [['폰 엎어 두고 눈 감기. 아무것도 안 하기', 600]],
+      why: '방금 공부했다면 이게 맞아. 새로 배운 뒤 10분 가만히 쉰 쪽이 일주일 뒤에도 더 기억했어.', cite: 'Dewar 2012 · Wamsley 2019', bm: 'resume' },
+    park20: { name: '초록 걷기 15분 + 눈 감기', steps: [['나무 있는 데로 걷기. 폰은 주머니에', 900], ['앉아서 눈 감고 가만히', 300]],
+      why: '점심에 공원을 15분 걸은 날은 오후 집중이 오르고 피로가 줄었어. 실제 자연은 화면 속 자연보다 기분을 더 올렸어.', cite: 'Sianoja 2018 · Browning 2020 · Stevenson 2018', bm: 'resume' },
+    problem2: { name: '한 줄 적고 물', steps: [['일어나서 물 한 컵', 60], ['자리로 돌아오기 전에 창밖 30초', 30]],
+      why: '문제를 적어 두고 잠깐 떠나는 게 부화의 시작이야. 준비를 길게 할수록 효과가 컸어.', cite: 'Sio & Ormerod 2009 메타', bm: 'problem' },
+    idle10: { name: '머리 안 쓰는 딴짓 10분', steps: [['설거지·정리·걷기처럼 손만 쓰는 거. 영상은 말고', 600]],
+      why: '머리 안 쓰는 단순한 일을 한 쪽이 쉬기, 어려운 일, 안 쉬기보다 창의 문제를 더 풀었어. 영상은 머리를 쓰는 쪽이야.', cite: 'Baird 2012 · Sio & Ormerod 2009', bm: 'problem' },
+    walk20: { name: '밖에서 걷기 15분', steps: [['밖에서 걷기. 떠오르면 머릿속에만', 900], ['돌아와서 떠오른 거 바로 적기', 120]],
+      why: '걷는 동안과 걸은 직후에 아이디어가 더 많이 나왔어. 밖에서 걸을 때 가장 새로웠어.', cite: 'Oppezzo & Schwartz 2014', bm: 'problem' },
+  };
+  // 상태 × 시간 → [기본, 다른 거]
+  const MENU = {
+    sleepy: { 2: ['splash', 'sigh'], 10: ['nap10', 'splash'], 20: ['coffeeNap', 'nap10'] },
+    full: { 2: ['sigh', 'stretch'], 10: ['cooler', 'sigh'], 20: ['cooler', 'walk10'] },
+    foggy: { 2: ['stretch', 'sigh'], 10: ['walk10', 'rest10'], 20: ['park20', 'nap10'] },
+    stuck: { 2: ['problem2', 'sigh'], 10: ['idle10', 'walk10'], 20: ['walk20', 'idle10'] },
+  };
+  const BM = { resume: ['돌아오면 먼저 할 것', '예) 레포트 3장 첫 문장', '돌아오면 먼저'], problem: ['막힌 문제를 한 줄로', '예) 결론을 어떻게 맺지', '막혔던 문제 · 떠오른 거 있어?'] };
+  const resolve = id => (id === 'coffeeNap' && HOUR >= 16 ? 'nap15' : id);
+  const total = rx => rx.steps.reduce((s, x) => s + x[1], 0);
+
+  // ── 화면 전환
+  const STEP = { sIntro: -1, sState: 0, sDial: 1, sRx: 2, sRun: 3, sAfter: 4, sRes: 4 };
+  let cur = null;
+  function go(id) {
+    if (cur) $(cur).classList.remove('on');
+    cur = id; $(id).classList.add('on');
+    const n = STEP[id];
+    [...$('steps').children].forEach((el, i) => el.className = n < 0 ? '' : i < n || id === 'sRes' ? 'on' : i === n ? 'now' : '');
+    $('phone').classList.toggle('night', id === 'sRun');
+  }
+
+  const S = { state: null, before: 4, after: 4, mins: 10, alt: 0, rx: null, note: '', t0: 0, stopped: false };
+
+  // ── 기록 통계: 처방별 평균 변화
+  const sessions = () => store.get(K.sessions, []);
+  function stats() {
+    const m = {};
+    sessions().forEach(s => { (m[s.rx] = m[s.rx] || { n: 0, sum: 0 }); m[s.rx].n++; m[s.rx].sum += s.a - s.b; });
+    Object.values(m).forEach(v => v.avg = v.sum / v.n);
+    return m;
+  }
+  const sign = x => (x > 0 ? '+' : '') + (Number.isInteger(x) ? x : x.toFixed(1));
+
+  // ── 내 기록: 최근 8번의 전후 맑기 막대 + 평균 + 제일 잘 든 처방 (홈과 결과에 같은 모양)
+  function renderHist(el) {
+    const all = sessions(), st = stats();
+    if (!all.length) {
+      el.innerHTML = '<div class="h"><span class="eng">내 기록</span><span class="eng">0회</span></div><div class="empty">처음이면 아무거나 골라도 돼. 2분짜리도 있어.<br>쓸 때마다 전후 맑기가 여기 쌓여.</div>';
+      return;
+    }
+    const last = all.slice(-8), ds = all.map(x => x.a - x.b), avg = +(ds.reduce((a, b) => a + b, 0) / ds.length).toFixed(1);
+    const best = Object.entries(st).filter(([, v]) => v.n >= 2).sort((a, b) => b[1].avg - a[1].avg)[0];
+    el.innerHTML = `<div class="h"><span class="eng">내 기록 · 회색 전 / 검정 후</span><span class="eng">${all.length}회 · 평균 ${sign(avg)}</span></div>`
+      + `<div class="g">${last.map((x, i) => `<div${i === last.length - 1 ? ' class="last"' : ''}><i style="height:${x.b * 10}%"></i><i style="height:${x.a * 10}%"></i></div>`).join('')}</div>`
+      + `<div class="best" id="${el.id === 'hist' ? 'best' : 'best2'}">${best ? `제일 잘 든 처방 <em>${esc(RX[best[0]].name)} ${sign(+best[1].avg.toFixed(1))}</em>` : '같은 처방을 두 번 쓰면 제일 잘 든 걸 알려 줄게.'}</div>`;
+  }
+
+  // ── 1 상태
+  function home() {
+    S.state = null; S.alt = 0; S.note = ''; S.stopped = false;
+    renderHist($('hist'));
+    go('sState');
+  }
+  $('pick').addEventListener('click', e => {
+    const k = e.target.closest('[data-s]'); if (!k) return;
+    S.state = k.dataset.s; buzz(15);
+    $('dialLbl').textContent = `머리 맑기 · ${STATE[S.state]}`;
+    knob1.set(S.before, true);
+    go('sDial');
+  });
+
+  // ── 2 맑기 + 시간
+  const knob1 = UD.knob($('knob1'), v => { S.before = v; $('clrN').textContent = v; $('clrWord').textContent = WORDS[v]; UD.thermo($('clrBar'), v); });
+  $('kBack1').onclick = () => go('sState');
+  $('times').addEventListener('click', e => {
+    const k = e.target.closest('[data-m]'); if (!k) return;
+    S.mins = +k.dataset.m; S.alt = 0; buzz(15);
+    showRx();
+  });
+
+  // ── 3 처방
+  function showRx() {
+    const pair = MENU[S.state][S.mins];
+    S.rx = resolve(pair[S.alt]);
+    const rx = RX[S.rx], other = resolve(pair[1 - S.alt]);
+    go('sRx');
+    const rc = $('receipt'); rc.classList.remove('print'); void rc.offsetWidth; rc.classList.add('print');
+    motor(.9); buzz([25, 35, 25]);
+    $('rxHead').textContent = `UD-R · ${STATE[S.state]} · ${S.mins}분`;
+    $('rxTime').textContent = hhmm();
+    $('rxName').textContent = rx.name;
+    $('rxSteps').innerHTML = rx.steps.map(([t, s]) => `<li><span>${esc(t)}</span><span>${mmss(s * 1000)}</span></li>`).join('');
+    $('rxWhy').textContent = rx.why;
+    $('rxCite').textContent = rx.cite;
+    $('bmBox').style.display = rx.bm ? '' : 'none';
+    $('bmRx').textContent = `${rx.name} · ${mmss(total(rx) * 1000)}`;
+    if (rx.bm) { $('bmLbl').textContent = BM[rx.bm][0]; $('bmIn').placeholder = BM[rx.bm][1]; }
+    $('kAlt').innerHTML = `<small>다른 거</small>${esc(RX[other].name)}`;
+    $('kStartS').textContent = rx.ext ? '3분 · 화면 켜짐' : `${mmss(total(rx) * 1000)} · 화면 꺼짐`;
+    // 같은 사람 안에서 비교한 힌트
+    const st = stats(), a = st[S.rx], b = st[other];
+    let hint = '';
+    if (b && b.n >= 2 && b.avg >= (a ? a.avg : 0) + 1) hint = `지난 기록으론 <b>「${esc(RX[other].name)}」</b> 쪽이 평균 ${sign(b.avg)}로 더 잘 들었어.`;
+    else if (a) hint = `지난번 이 처방: 평균 ${sign(a.avg)} (${a.n}회)`;
+    $('rxHint').innerHTML = hint;
+  }
+  $('kAlt').onclick = () => { S.alt = 1 - S.alt; showRx(); };
+  $('kStart').onclick = () => {
+    const rx = RX[S.rx];
+    S.note = rx.bm ? $('bmIn').value.trim() : '';
+    S.t0 = Date.now(); S.stopped = false;
+    // 화면 밖에서 돌아올 때(식히기 왕복) 이어 붙일 수 있게. 책갈피는 돌아와서 보여 준 뒤 지운다.
+    store.set(K.pending, { state: S.state, rx: S.rx, before: S.before, mins: S.mins, t0: S.t0, note: S.note });
+    if (rx.ext) { location.href = rx.ext; return; }
+    run(rx);
+  };
+
+  // ── 4 실행: Date 기준 타이머(백그라운드에서 느려져도 맞게)
+  let ticker = null, lock = null;
+  async function wake(on) {
+    if (UD.isApp) return UD.native({ t: 'awake', on });
+    try { if (on && navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); else if (lock) { await lock.release(); lock = null; } } catch {}
+  }
+  function run(rx) {
+    go('sRun'); wake(true);
+    $('runLbl').textContent = `화면 꺼짐 · ${rx.name}`;
+    $('segs').innerHTML = '<i></i>'.repeat(rx.steps.length);
+    const ends = []; rx.steps.reduce((s, x) => (ends.push(s + x[1] * 1000), s + x[1] * 1000), 0);
+    const T = ends[ends.length - 1];
+    // 앱에선 잠금 화면에서도 울리게 로컬 알림을 걸어 둔다
+    UD.native({ t: 'alarm', after: (T - (Date.now() - S.t0) * SPEED) / 1000 / SPEED, title: '우다다', body: `${rx.name} 끝. 돌아와서 맑기를 다시 재 보자.` });
+    let last = -1;
+    const frame = () => {
+      const e = (Date.now() - S.t0) * SPEED;
+      if (e >= T) return finishRun(true);
+      const i = ends.findIndex(x => e < x), st = rx.steps[i], start = i ? ends[i - 1] : 0;
+      if (i !== last) {
+        if (last >= 0) { UD.tick(1200, .05, .1); buzz([60, 60, 60]); }
+        last = i;
+        $('runIdx').textContent = `${i + 1} / ${rx.steps.length}`;
+        $('runStep').textContent = st[0];
+        [...$('segs').children].forEach((el, j) => el.className = j < i ? 'd' : j === i ? 'now' : '');
+      }
+      $('runT').textContent = mmss(T - e);
+      if (st[2] === 'breath') {
+        const p = (e - start) % 8500;
+        $('runPh').textContent = p < 2000 ? '코로 훅' : p < 3000 ? '한 번 더 훅' : '입으로 길—게';
+      } else $('runPh').textContent = '';
+    };
+    clearInterval(ticker); ticker = setInterval(frame, 200); frame();
+  }
+  function finishRun(done) {
+    clearInterval(ticker); ticker = null; wake(false);
+    UD.native({ t: 'alarmCancel' });
+    if (done) { chime(); buzz([200, 100, 200, 100, 400]); } else S.stopped = true;
+    showAfter();
+  }
+  $('kStop').onclick = () => finishRun(false);
+
+  // ── 5 돌아옴: 책갈피 먼저, 그다음 맑기
+  const knob2 = UD.knob($('knob2'), v => { S.after = v; $('clr2N').textContent = v; $('clr2Word').textContent = WORDS[v]; UD.thermo($('clr2Bar'), v); });
+  function showAfter() {
+    const rx = RX[S.rx];
+    $('bmShow').style.display = S.note ? '' : 'none';
+    if (S.note) { $('bmShowLbl').textContent = BM[rx.bm][2]; $('bmShowT').textContent = S.note; }
+    $('afterLbl').textContent = `다시 맑기 · 아까 ${S.before}`;
+    S.after = S.before; knob2.set(S.before, true);
+    go('sAfter');
+  }
+  $('kSave').onclick = () => {
+    const ms = Date.now() - S.t0;
+    const all = sessions();
+    all.push({ at: Date.now(), state: S.state, rx: S.rx, b: S.before, a: S.after, mins: S.mins, ms: Math.round(ms * SPEED), stopped: S.stopped });
+    store.set(K.sessions, all);
+    store.del(K.pending);
+    showRes(ms);
+  };
+
+  // ── 6 결과: 사실만. 같은 사람 안의 처방 비교
+  function showRes(ms) {
+    const rx = RX[S.rx], d = S.after - S.before;
+    $('resLbl').textContent = `리프레시 · ${rx.name}`;
+    $('resTime').textContent = mmss(ms * SPEED);
+    $('resB').textContent = S.before; $('resA').textContent = S.after; $('resD').textContent = sign(d);
+    $('resB').classList.toggle('a', d !== 0);
+    const msg = [d > 0 ? `이번엔 「${rx.name}」 처방이 들었어.` : d === 0 ? '그대로야. 다음엔 다른 처방도 기록해 보자. 비교가 돼.' : '오늘은 안 맞았나 봐. 다른 처방도 기록해 두면 비교가 돼.'];
+    if (S.stopped) msg.push('중간에 멈춘 것도 그대로 기록했어.');
+    if (S.state === 'sleepy') msg.push('잠이 모자란 거라면 진짜 처방은 오늘 밤 잠이야.');
+    $('resMsg').textContent = msg.join(' ');
+    const rows = Object.entries(stats()).sort((a, b) => b[1].avg - a[1].avg).slice(0, 4);
+    $('rank').innerHTML = '<div class="eng" style="margin-bottom:0.25rem">나한테 잘 든 처방 · 평균 변화</div>' + (rows.length
+      ? rows.map(([id, v]) => `<div class="row${id === S.rx ? ' cur' : ''}"><div>${esc(RX[id].name)}</div><span class="v">${sign(v.avg)}</span><span>${v.n}회</span></div>`).join('')
+      : '<div class="none">아직 없음</div>');
+    // 같은 상태에서 다른 처방도 한 번은 기록해야 비교가 된다
+    const st = stats(), other = resolve(MENU[S.state][S.mins].find(id => resolve(id) !== S.rx) || S.rx);
+    if (other !== S.rx && !st[other]) $('rank').innerHTML += `<div class="none" style="margin-top:0.375rem">다음에 ${STATE[S.state]} 땐 「${esc(RX[other].name)}」도 해 봐. 비교가 돼.</div>`;
+    renderHist($('hist2'));
+    // 책갈피를 적었으면 결과의 끝은 '하던 일로 돌아가기' (Leroy & Glomb 2018)
+    $('nextShow').style.display = S.note ? '' : 'none';
+    $('nextT').textContent = S.note;
+    $('kHomeT').textContent = S.note ? '돌아가서 하기' : '처음으로';
+    $('kHomeS').textContent = S.note ? '책갈피에서 이어서' : 'OFF';
+    go('sRes');
+  }
+  $('kHome').onclick = home;
+  $('kIntro').onclick = () => { store.set('udada.refresh.seen', 1); buzz(15); home(); };
+
+  // ── 시작: 식히기에서 돌아왔으면 '돌아옴'부터
+  const pending = store.get(K.pending, null);
+  if (q.get('back') === 'cooler' && pending) {
+    Object.assign(S, { state: pending.state, rx: pending.rx, before: pending.before, mins: pending.mins, t0: pending.t0, note: pending.note || '' });
+    history.replaceState(null, '', location.pathname + (SPEED > 1 ? `?speed=${SPEED}` : ''));
+    showAfter();
+  } else if (!store.get('udada.refresh.seen', 0)) go('sIntro');
+  else home();
+})();
+</script>
+</body>
+</html>

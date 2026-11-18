@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우다다 시안 C — 답안지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Pen+Script&display=swap">
+<style>
+/* 은유: 시험지 + OMR 답안지. 할 일 = 문제 한 개. 끝냄 = 컴퓨터용 사인펜으로 칸 칠하기.
+   색: 갱지 + 검정 + OMR 빨강 하나. 명조체는 시험지에서만 쓰는 '진지한' 목소리. */
+:root{
+  --paper:#F7F3EA; --paper2:#FFFDF8; --ink:#141414; --ink2:#6E6A62; --omr:#E0474C; --omr2:#F4B9B5; --omr3:#FCE9E6;
+  --serif:"Nanum Myeongjo",serif; --disp:"Hahmlet",serif; --pen:"Nanum Pen Script",cursive;
+}
+*{box-sizing:border-box;margin:0}
+body{background:#E4DDD0;color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;word-break:keep-all;padding:40px 32px 64px}
+.sheet-h{max-width:1180px;margin:0 auto 36px;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:end;border-bottom:3px double var(--ink);padding-bottom:14px}
+.sheet-h .tag{font:700 12px var(--disp);margin-bottom:8px}
+.sheet-h h1{font:900 36px/1 var(--disp);letter-spacing:-.04em}
+.sheet-h p{font-size:14px;color:#55514a;max-width:540px;line-height:1.6}
+.sw{display:flex;gap:6px}.sw i{width:22px;height:22px;border:1px solid #14141444}
+.row{display:flex;gap:44px;justify-content:center;flex-wrap:wrap}
+figure{display:grid;gap:14px}
+figcaption{font:400 12px var(--serif);color:#55514a}
+figcaption b{color:var(--ink)}
+.phone{width:360px;height:780px;border-radius:46px;overflow:hidden;position:relative;background:var(--paper);box-shadow:0 0 0 9px #0a0a0a,0 40px 70px -30px rgba(0,0,0,.45)}
+.phone::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .4 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.sb{position:absolute;top:0;left:0;right:0;height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font:700 14px system-ui;z-index:5}
+.in{position:absolute;inset:0;padding:54px 20px 20px;display:flex;flex-direction:column}
+
+/* 공통 시험지 머리 */
+.exam-h{display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:10px;border-bottom:3px double var(--ink);padding-bottom:8px}
+.exam-h .pg{font:800 30px/1 var(--disp)}
+.exam-h .t{text-align:center;font:800 13px var(--serif)}
+.exam-h .t small{display:block;font:400 10px var(--serif);color:var(--ink2);margin-bottom:2px}
+.exam-h .box{border:1.5px solid var(--ink);font:700 12px var(--serif);padding:4px 8px}
+
+/* ---------- 1. 표지 ---------- */
+.cover-t{text-align:center;margin:22px 0 14px}
+.cover-t small{font:400 12px var(--serif);letter-spacing:.3em;color:var(--ink2)}
+.cover-t h2{font:900 46px/1.05 var(--disp);letter-spacing:-.04em;margin-top:6px}
+.cover-t h2 span{display:inline-block;border:2.5px solid var(--ink);padding:2px 12px;margin-top:6px;font-size:22px;letter-spacing:.05em}
+.idcard{display:grid;grid-template-columns:52px 1fr 52px 1fr;border:1.5px solid var(--omr);color:var(--omr);font:700 11px var(--serif)}
+.idcard>*{padding:8px 6px;border-right:1px solid var(--omr2)}
+.idcard>*:nth-child(odd){background:var(--omr3);text-align:center}
+.idcard b{color:var(--ink);font:400 27px/18px var(--pen);padding-left:10px}
+.scope{flex:1;margin-top:12px;border:1.5px solid var(--ink);background:var(--paper2);padding:10px 14px;position:relative}
+.scope .lbl{position:absolute;top:-9px;left:12px;background:var(--paper2);padding:0 6px;font:800 12px var(--serif)}
+.scope p{font:400 15px/2.05 var(--serif);border-bottom:1px dotted #bdb6a8}
+.time{display:flex;align-items:center;gap:12px;margin-top:12px;font:700 13px var(--serif)}
+.time label{display:flex;align-items:center;gap:5px;font-weight:400}
+.time i{width:13px;height:20px;border:1.3px solid var(--omr);border-radius:7px;display:inline-block}
+.time i.f{background:var(--ink);border-color:var(--ink)}
+.start{margin-top:14px;background:var(--ink);color:var(--paper2);text-align:center;padding:16px 0;font:800 18px var(--disp);letter-spacing:.02em;display:flex;justify-content:center;gap:10px;align-items:center}
+.start small{font:400 12px var(--serif);opacity:.6}
+
+/* ---------- 2. 문제 ---------- */
+.meta{display:flex;justify-content:space-between;font:400 11px var(--serif);color:var(--ink2);margin-top:8px}
+.meta b{color:var(--omr);font-weight:800}
+.q{margin-top:26px}
+.q .no{font:900 64px/1 var(--disp);letter-spacing:-.04em;position:relative;display:inline-block}
+.q h2{font:800 25px/1.5 var(--serif);letter-spacing:-.04em;margin-top:8px}
+.q h2 u{text-decoration:none;box-shadow:inset 0 -2px 0 var(--ink)}
+.q h2 .pt{font:400 15px var(--serif);color:var(--ink2);white-space:nowrap}
+.bogi{margin-top:16px;border:1.3px solid var(--ink);padding:14px 14px 10px;position:relative;font:400 14px/1.7 var(--serif)}
+.bogi .lbl{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--paper);padding:0 8px;font:800 13px var(--serif)}
+.opts{margin-top:18px;display:grid;gap:2px}
+.opts div{display:flex;gap:12px;align-items:baseline;font:400 16px/1.75 var(--serif);padding:2px 4px}
+.opts div i{font-style:normal;font-family:var(--disp);font-weight:600}
+.opts div small{margin-left:auto;color:var(--ink2);font-size:11px}
+.opts div.hot{background:linear-gradient(transparent 55%,var(--omr3) 55%)}
+.strip{position:absolute;left:0;right:0;bottom:0;background:var(--paper2);border-top:2px solid var(--omr);padding:12px 20px 26px}
+.strip .h{display:flex;justify-content:space-between;color:var(--omr);font:800 11px var(--serif);margin-bottom:8px}
+.cols{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.col{display:grid;justify-items:center;gap:4px;border-right:1px solid var(--omr2)}
+.col:last-child{border-right:0}
+.col b{font:800 11px var(--disp);color:var(--omr)}
+.col i{width:12px;height:19px;border:1.2px solid var(--omr);border-radius:6px;display:block;position:relative}
+.col i::after{content:attr(data-n);position:absolute;inset:0;font:700 7px/17px var(--disp);text-align:center;color:var(--omr)}
+.col i.f{background:var(--ink);border-color:var(--ink)}
+.col i.f::after{content:""}
+.col.now{background:var(--omr3);border-radius:2px}
+.swipe{position:absolute;right:22px;bottom:190px;z-index:2;font:400 22px var(--pen);color:var(--omr);transform:rotate(-6deg)}
+
+/* ---------- 3. 채점 ---------- */
+.graded{margin-top:22px;position:relative}
+.graded .no{font:900 64px/1 var(--disp);letter-spacing:-.04em}
+.graded h2{font:800 20px/1.5 var(--serif);letter-spacing:-.04em;margin-top:30px;color:#3b3934}
+.circle{position:absolute;left:-18px;top:-14px;width:118px;height:100px;overflow:visible}
+.circle path{fill:none;stroke:var(--omr);stroke-width:4.5;stroke-linecap:round;stroke-dasharray:420;stroke-dashoffset:420;animation:draw .7s .2s cubic-bezier(.6,.1,.3,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.score{position:absolute;right:4px;top:-2px;text-align:right;color:var(--omr);transform:rotate(-8deg);animation:pop .4s .8s both cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:rotate(-8deg) scale(0)}}
+.score b{font:400 74px/0.9 var(--pen)}
+.score small{display:block;font:400 22px var(--pen)}
+.tally{margin-top:26px;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.tally div{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:9px 2px;border-bottom:1px dotted #bdb6a8;font:400 14px var(--serif);align-items:center}
+.tally div:last-child{border-bottom:0}
+.tally div i{font:400 26px/0.6 var(--pen);color:var(--omr);font-style:normal}
+.tally div b{font:800 13px var(--disp)}
+.tally div.n{color:#3b3934}
+.tally div.p{color:var(--ink2)}
+.tally div.p i{color:transparent}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}
+.total span{font:400 13px var(--serif);color:var(--ink2)}
+.total b{font:900 30px var(--disp);letter-spacing:-.03em}
+.total b em{font-style:normal;color:var(--omr);font:400 26px var(--pen);margin-left:6px}
+.nextq{margin-top:auto;margin-bottom:150px;background:var(--paper2);display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--ink);padding:12px 14px;font:800 15px var(--serif)}
+.nextq small{font:400 12px var(--serif);color:var(--ink2)}
+</style>
+</head>
+<body>
+<header class="sheet-h">
+  <div><div class="tag">시안 C</div><h1>답안지</h1></div>
+  <p>할 일이 <b>한 문제</b>씩 나온다. 풀면 컴퓨터용 사인펜으로 칸이 칠해지고, 빨간 펜이 동그라미를 친다. 시험지의 명조체가 주는 '이건 진짜 해야 하는 거'라는 무게 + 채점의 쾌감.</p>
+  <div class="sw"><i style="background:#F7F3EA"></i><i style="background:#141414"></i><i style="background:#E0474C"></i><i style="background:#FCE9E6"></i></div>
+</header>
+<div class="row">
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="in">
+    <div class="exam-h"><div class="pg">우다다</div><div class="t"></div><div class="box">홀수형</div></div>
+    <div class="cover-t">
+      <small>2026 학년도 · 11월 4일</small>
+      <h2>오늘 영역<br><span>문제지</span></h2>
+    </div>
+    <div class="idcard"><span>성명</span><b>나</b><span>시간</span><b>1시간</b></div>
+    <div class="scope">
+      <span class="lbl">출제 범위 — 생각나는 대로</span>
+      <p>레포트 금요일까지 3장 아직 시작도 안 함</p>
+      <p>엄마한테 전화</p>
+      <p>방 개판 · 택배 반품 언제까지더라</p>
+      <p>단톡 답장 안 했음</p>
+      <p>&nbsp;</p>
+    </div>
+    <div class="time">시험 시간
+      <label><i></i>30분</label><label><i class="f"></i>1시간</label><label><i></i>2시간</label><label><i></i>오늘</label>
+    </div>
+    <div class="start">출제하고 시작 <small>문항당 2~10분</small></div>
+  </div>
+</div>
+<figcaption><b>01 문제지 표지</b> — 쏟아내기</figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="in">
+    <div class="exam-h"><div class="pg">2</div><div class="t"><small>오늘 영역</small>레포트</div><div class="box">2:21</div></div>
+    <div class="meta"><span>7문항 중 2번째</span><span><b>3문항 연속</b> 정답</span></div>
+    <div class="q">
+      <div class="no">2.</div>
+      <h2>레포트 파일을 열고 <u>제목만</u> 쓰시오. <span class="pt">[3분]</span></h2>
+      <div class="bogi"><span class="lbl">&lt;보 기&gt;</span>
+        ㄱ. 첫 동작은 노트북 화면 켜기이다.<br>ㄴ. 내용은 쓰지 않아도 정답으로 인정한다.
+      </div>
+      <div class="opts">
+        <div class="hot"><i>①</i>풀었다<small>위로 밀기</small></div>
+        <div><i>②</i>막혔다 — 더 잘게 쪼개기</div>
+        <div><i>③</i>딴 생각났다 — 여백에 메모</div>
+        <div><i>④</i>나중에 풀기</div>
+      </div>
+    </div>
+    <div class="swipe">↑ 밀면 마킹</div>
+    <div class="strip">
+      <div class="h"><span>답안지 · 컴퓨터용 사인펜</span><span>쉬는 시간까지 1문항</span></div>
+      <div class="cols">
+        <div class="col"><b>1</b><i class="f"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col now"><b>2</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>3</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>4</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>5</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>6</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>7</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+<figcaption><b>02 문제</b> — 할 일 한 개</figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="in">
+    <div class="exam-h"><div class="pg">2</div><div class="t"><small>오늘 영역</small>채점</div><div class="box">2:41</div></div>
+    <div class="graded">
+      <svg class="circle" viewBox="0 0 118 100"><path d="M70 10 C 30 2, 4 30, 10 58 C 16 88, 70 96, 96 74 C 116 56, 108 18, 72 12 C 60 10, 50 14, 44 18"/></svg>
+      <div class="no">2.</div>
+      <div class="score"><b>+28</b><small>크리티컬 ×2</small></div>
+      <h2>레포트 파일을 열고 제목만 쓰시오.</h2>
+    </div>
+    <div class="tally">
+      <div><i>○</i><span>택배 반품 접수하기</span><b>+12</b></div>
+      <div><i>○</i><span>단톡 답장 한 줄</span><b>+8</b></div>
+      <div class="n"><i>○</i><span>레포트 제목 쓰기</span><b>+28</b></div>
+      <div class="p"><i>○</i><span>3. 참고문헌 3개 찾기</span><b>8분</b></div>
+    </div>
+    <div class="total"><span>오늘 점수</span><b>48점<em>잘했음</em></b></div>
+    <div class="nextq"><span>3번 문제로 →</span><small>위로 밀기 · 3초 뒤 자동</small></div>
+    <div class="strip">
+      <div class="h"><span>답안지</span><span>7문항 중 3 마킹</span></div>
+      <div class="cols">
+        <div class="col"><b>1</b><i class="f"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>2</b><i class="f"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>3</b><i class="f"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col now"><b>4</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>5</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>6</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+        <div class="col"><b>7</b><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+<figcaption><b>03 채점</b> — 끝냈을 때 보상</figcaption>
+</figure>
+
+</div>
+</body>
+</html>

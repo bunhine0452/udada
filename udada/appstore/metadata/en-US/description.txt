@@ -1,0 +1,48 @@
+Your day in three parts. Your head, emptied.
+
+Udada is a one-page day planner. The day is split into morning, afternoon and evening. Appointments sit at their times; to-dos float inside a part of the day. If something runs late, it quietly moves to the next part — no red "overdue" marks.
+
+ONE PAGE A DAY
+· Appointments are solid blocks, to-dos are open lines. You can tell them apart at a glance.
+· A cobalt "now" line tells you how long until your next appointment and what fits in the gap: "Dentist in 40 min · 'Reply to email' takes 15, start now."
+· Each part of the day shows what you've planned against the free time left, and tells you when it overflows.
+
+ONE LINE TO ADD
+· Type "dentist tomorrow at 3" and Udada reads the day, time and length, and shows you before it adds anything. Fix it with one tap. The keyboard stays up so you can keep going.
+
+BRAIN DUMP
+· Pour out everything — tasks, worries, random thoughts — by typing, speaking, or taking a photo of a handwritten list.
+· One card at a time, Udada suggests a place: now (done in 2 minutes), pick a date, worry time, or let it go.
+· Stuck tasks get a first step you can do in two minutes.
+
+WORRY BOX
+· Park worries you can't act on yet, and look at them for ten minutes at a set time each day.
+
+COOL DOWN
+· 1-minute breathing, 3 minutes of looking far away, or a 10-minute walk. It starts right away and the screen goes dark — nothing to look at. It never nags you to take a break.
+
+CLOSE THE DAY
+· For each thing left over, choose tomorrow, later, or not doing it. Then stamp the day "done."
+
+FOCUS AND RECORDS
+· Focus sessions keep planned and actual time side by side, so you learn how long things really take.
+· Records show facts — completion rate, closed days, cool-downs, a 12-week grid. No points, levels or streaks.
+
+WITHOUT OPENING THE APP
+· Home Screen widgets (small, medium, large) with a tap-to-complete checkbox
+· Lock Screen widgets, Live Activities and the Dynamic Island for focus and cool-down
+· Control Center controls, Siri and Shortcuts, Spotlight, and a Focus filter
+· An optional Shortcuts automation that shows your one next task before you open a short-video app. It never blocks anything.
+
+ON-DEVICE AI
+· On devices that support Apple Intelligence (iOS 26 or later, with it turned on), on-device AI helps sort your brain dump, suggests first steps and looks at worries. Everywhere else, the same flow runs on rules. Nothing you write leaves your iPhone.
+
+PRIVACY
+· No account, no ads, no tracking. Your data stays on this iPhone.
+· Your device calendar is read only when you turn it on, and never changed.
+· Voice and photos are only turned into text and are not stored. Speech is recognized on device when your iPhone supports it; otherwise Apple's speech recognition is used and the app tells you.
+
+BUILT FROM RESEARCH
+Each screen started from a study; sources are in Settings → 근거 보기 (Evidence). This is not therapy or a medical device, and results vary from person to person.
+
+Currently available in Korean.

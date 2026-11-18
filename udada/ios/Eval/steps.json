@@ -1,0 +1,22 @@
+[
+ {"big": "금요일까지 발표 준비", "dueOffset": 4},
+ {"big": "이사 준비", "dueOffset": 12},
+ {"big": "분기 보고서 쓰기", "dueOffset": 3},
+ {"big": "제주도 여행 준비", "dueOffset": 9},
+ {"big": "이력서 고치기"},
+ {"big": "대청소"},
+ {"big": "엄마 생신 잔치 준비", "dueOffset": 6},
+ {"big": "운전면허 갱신", "dueOffset": 10},
+ {"big": "강아지 예방접종 맞히기", "dueOffset": 5},
+ {"big": "블로그 첫 글 올리기"},
+ {"big": "연말정산 서류 챙기기", "dueOffset": 7},
+ {"big": "동아리 회식 장소 잡기", "dueOffset": 3},
+ {"big": "노트북 새로 사기"},
+ {"big": "전세 계약 갱신", "dueOffset": 14},
+ {"big": "베란다 화분 분갈이"},
+ {"big": "결혼식 축사 쓰기", "dueOffset": 5},
+ {"big": "중고 자전거 팔기"},
+ {"big": "팀 워크숍 기획", "dueOffset": 8},
+ {"big": "토익 시험 접수하고 공부", "dueOffset": 20},
+ {"big": "옷장 겨울옷으로 바꾸기", "dueOffset": 2}
+]

@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우다다 — 머리 식히는 기계</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbit&family=JetBrains+Mono:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="machine.css">
+<style>
+/* e-cooler 시안의 동작판. 온도 → 비우기 → 분류 → 식히기 → 하나만 → 다시 온도. 근거는 VALUE.md.
+   refresh.html 의 '꽉 찼어' 갈래로 들어오면(?from=refresh) 온도는 건너뛰고 끝나면 돌아간다. */
+.feel{grid-template-columns:repeat(4,1fr);min-height:3.125rem}
+.feel .key{font-size:0.875rem;justify-content:center;align-items:center}
+
+#dumpTxt{all:unset;flex:1;min-height:3rem;font:400 max(16px,1rem)/1.7 var(--lcdf);color:var(--seg);white-space:pre-wrap;overflow:auto;user-select:text;-webkit-user-select:text;caret-color:var(--seg)}
+#dumpTxt::placeholder{color:rgba(30,38,25,.45)}
+
+.stack{display:flex;gap:0.1875rem;margin-bottom:0.5rem}
+.stack i{flex:1;height:0.25rem;background:rgba(30,38,25,.15)}
+.stack i.d{background:var(--seg)}
+#cardT{font:400 1.5625rem/1.3 var(--lcdf);letter-spacing:-.04em;margin:0.25rem 0 0.75rem;min-height:4.125rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#cardT.pop{animation:pop .22s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(0.625rem)}}
+#sSort #cardT{margin:auto 0;font-size:1.75rem}
+.sug{border:1px solid var(--seg);padding:0.5rem 0.625rem;font-size:0.7812rem;line-height:1.6;min-height:3.625rem}
+.sug b{font-weight:400;background:var(--seg);color:var(--lcd);padding:0 0.25rem}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;margin-top:0.5rem}
+.chips button{all:unset;font:400 0.8125rem var(--lcdf);border:1px solid var(--seg);min-height:2.375rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.chips button.s{background:var(--seg);color:var(--lcd)}
+.chute{grid-template-columns:1fr 1fr;grid-template-rows:4.75rem 4.75rem;margin-top:auto}
+.chute .key{font-size:1.0625rem}
+.ok{grid-template-columns:1fr;min-height:3.625rem}
+.ok .key{flex-direction:row;align-items:center;font-size:1.0625rem}
+
+.breath{flex:1;display:flex;flex-direction:column;justify-content:center}
+.breath .lbl{font-size:0.8125rem;display:flex;justify-content:space-between}
+#ph{font:400 2.25rem/1.15 var(--lcdf);letter-spacing:-.04em;margin:1.125rem 0 1.375rem;min-height:5.25rem}
+.bars{display:grid;grid-template-columns:1fr 1fr 4fr;gap:0.375rem;align-items:end;height:5.25rem}
+.bars i{background:rgba(30,38,25,.15);position:relative;overflow:hidden;height:100%}
+.bars i:nth-child(1){height:60%}
+.bars i b{position:absolute;left:0;bottom:0;width:100%;height:100%;background:var(--seg);transform-origin:bottom;transform:scaleY(0)}
+.bars i:nth-child(3) b{transform-origin:left;transform:scaleX(0)}
+.cap{display:grid;grid-template-columns:1fr 1fr 4fr;gap:0.375rem;font-size:0.625rem;margin-top:0.375rem}
+.dots{display:flex;gap:0.375rem;margin-top:1.375rem}
+.dots i{width:0.75rem;height:0.75rem;border-radius:50%;border:1.5px solid var(--seg)}
+.dots i.d{background:var(--seg)}
+.hap{font:600 0.75rem var(--sans);color:var(--ink2);flex:none}
+
+#oneT{font:800 1.375rem/1.35 var(--sans);letter-spacing:-.04em;color:var(--ink);margin:0.75rem 0 0.625rem;overflow-wrap:anywhere}
+.receipt .rest{display:flex;justify-content:space-between;gap:0.5rem}
+.big1{grid-template-columns:1fr 2fr;min-height:6.25rem;margin-top:auto}
+.big1 .key.blue{font-size:1.5rem}
+
+.res .tt{display:flex;align-items:center;gap:0.875rem;margin:0.5rem 0 0.375rem}
+.res .tt span{font:400 3.75rem/1 var(--lcdf);letter-spacing:-.05em}
+.res .tt span.a{opacity:.35;text-decoration:line-through;text-decoration-thickness:0.1875rem}
+.res .tt em{font-style:normal;font-size:1.625rem}
+#resMsg{font-size:0.875rem;line-height:1.65;border-top:1px solid rgba(30,38,25,.25);padding-top:0.5rem;margin-top:0.375rem}
+.tally{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;flex:none}
+.tally div{background:var(--body2);border-radius:0.5rem;padding:0.5rem 0.5rem 0.4375rem;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.tally b{display:block;font:800 1.375rem var(--mono)}
+.tally span{font:700 0.6562rem var(--sans);color:var(--ink2)}
+.end{grid-template-columns:1fr 1fr;min-height:3.875rem;margin-top:auto}
+
+#drawerList{flex:1;min-height:0;overflow:auto;font-size:0.8438rem;line-height:1.5}
+#drawerList .g{font-size:0.625rem;opacity:.75;margin:0.625rem 0 0.25rem}
+#drawerList .g:first-child{margin-top:0}
+#drawerList .it{display:flex;gap:0.625rem;align-items:flex-start;padding:0.3125rem 0;border-bottom:1px dashed rgba(30,38,25,.25)}
+#drawerList .it span{flex:1}
+#drawerList .it button{all:unset;font:400 0.75rem var(--lcdf);border:1px solid var(--seg);min-width:max(44px,2.75rem);min-height:max(44px,2.75rem);display:flex;align-items:center;justify-content:center;padding:0 0.5rem;box-sizing:border-box;cursor:pointer;flex:none}
+#drawerList .it{align-items:center}
+#drawerList .empty{opacity:.6;margin-top:0.375rem}
+@media (prefers-reduced-motion:reduce){#cardT.pop{animation:none}}
+</style>
+</head>
+<body>
+
+<aside class="note">
+  <div class="tag">우다다 · 동작 프로토타입</div>
+  <h1>머리 식히는 기계</h1>
+  <p>할 일을 많이 해치우게 하는 기계가 아니다. <b>머릿속에 열려 있는 고리마다 '언제' 또는 '안 함'을 붙여서 닫고</b>, 숨을 한 번 길게 내쉬고, 딱 하나만 뽑아 준다. 기본 3분.</p>
+  <h2>순서</h2>
+  <ol>
+    <li><b>온도</b>: 노브로 지금 머리 몇 도인지</li>
+    <li><b>비우기</b>: 한 줄에 하나씩 막 쏟아내기</li>
+    <li><b>분류</b>: 한 장씩 지금 / 날짜 박기 / 내 손 밖 / 버리기</li>
+    <li><b>식히기</b>: 두 번 들이쉬고 길게 내쉬기 ×5</li>
+    <li><b>하나만</b>: 영수증 한 장 받고, 폰 엎어 두고 하고 오기</li>
+    <li><b>다시 온도</b></li>
+  </ol>
+  <p style="margin-top:0.5rem"><small>분류 단축키 <kbd>1</kbd>–<kbd>4</kbd> · 제안대로 <kbd>Enter</kbd></small></p>
+  <h2>근거 (VALUE.md)</h2>
+  <ul>
+    <li>구체적인 계획만 세워도 안 끝난 일의 침투 사고가 사라졌다 <small>Masicampo &amp; Baumeister 2011</small></li>
+    <li>걱정을 정해진 시간으로 미루면 걱정·불면이 줄었다 <small>McGowan &amp; Behar 2013</small></li>
+    <li>cyclic sighing 5분이 명상보다 기분·호흡수를 더 낮췄다 <small>Balban et al. 2023</small></li>
+  </ul>
+  <h2>정직하게</h2>
+  <p>이 조합의 효과는 아무도 검증하지 않았다. 그래서 전후 온도만 이 기기에 남긴다. 날짜 박은 것과 손 밖에 둔 것만 서랍에 저장하고, 버린 건 저장하지 않는다. 분류 제안은 AI가 아니라 단어 규칙이다.</p>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="sb"><span id="clock">9:41</span><span>●●●</span></div>
+  <div class="face">
+    <div class="brand"><b>우다다<sub>UD-1</sub></b><div class="steps" id="steps"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+
+    <section id="sTemp">
+      <div class="lcd">
+        <div class="st"><span id="tempLbl">머리 온도</span><i id="tempTag">지금</i></div>
+        <div class="temp"><div class="n" id="tempN">5</div><div class="u">/ 10<br><span id="tempWord">따뜻함</span></div></div>
+        <div class="thermo" id="thermo"></div>
+        <div class="sc"><span>0 조용</span><span>10 터질 듯</span></div>
+      </div>
+      <div class="bigknob" id="knob" aria-label="머리 온도"></div>
+      <div id="feelWrap" style="display:contents">
+        <span class="eng">지금 기분 한 단어 · 안 눌러도 됨</span>
+        <div class="keys feel" id="feel"><button class="key">막막<span class="led"></span></button><button class="key">불안<span class="led"></span></button><button class="key">짜증<span class="led"></span></button><button class="key">지침<span class="led"></span></button></div>
+      </div>
+      <div class="keys" style="grid-template-columns:1fr 2fr;min-height:3.875rem;margin-top:auto">
+        <button class="key" id="kDrawer"><small>DRAWER</small>서랍 <span id="drawerN">0</span></button>
+        <button class="key blue" id="kTempGo"><small id="tempGoS">5초</small><span id="tempGoT">쏟아내기로</span></button>
+      </div>
+    </section>
+
+    <section id="sDump">
+      <div class="lcd grow">
+        <div class="st"><span>비우기 · 막 써도 됨</span><i id="dumpClock">0:00</i></div>
+        <textarea id="dumpTxt" spellcheck="false" placeholder="머릿속에 있는 거 전부.&#10;한 줄에 하나씩.&#10;맞춤법·순서 상관없음."></textarea>
+      </div>
+      <div class="meter kb-hide">
+        <div><div class="eng" style="margin-bottom:0.375rem">머릿속 열린 고리</div><div class="odo" id="odoOpen"></div></div>
+        <div class="eng r">한 줄 = 고리 하나<br>줄바꿈으로 다음 거</div>
+      </div>
+      <div class="keys" style="grid-template-columns:1fr 2fr;min-height:4.75rem">
+        <button class="key" id="kEx"><small>EX</small>예시</button>
+        <button class="key blue" id="kSort" disabled><small id="sortS">한 줄 이상</small>정리하기</button>
+      </div>
+    </section>
+
+    <section id="sSort">
+      <div class="lcd grow">
+        <div class="st"><span id="sortLbl">분류 · 1 / 1</span><i>한 장씩</i></div>
+        <div class="stack" id="stack"></div>
+        <div id="cardT"></div>
+        <div class="sug" id="sug"></div>
+      </div>
+      <div class="meter">
+        <div><div class="eng" style="margin-bottom:0.375rem">닫은 고리</div><div class="odo" id="odoSort"></div></div>
+        <div class="eng r" id="sortLeft">남은 카드</div>
+      </div>
+      <div class="keys chute" id="chute">
+        <button class="key" data-b="now"><small>1 · NOW</small>지금<span class="led"></span><span class="cnt">0</span></button>
+        <button class="key" data-b="date"><small>2 · 언제·어디서</small>날짜 박기<span class="led"></span><span class="cnt">0</span></button>
+        <button class="key" data-b="out"><small>3 · 걱정 시간</small>내 손 밖<span class="led"></span><span class="cnt">0</span></button>
+        <button class="key" data-b="drop"><small>4 · DROP</small>버리기<span class="led"></span><span class="cnt">0</span></button>
+      </div>
+      <div class="keys ok"><button class="key blue" id="kSug">제안대로 딸깍<small>ENTER</small></button></div>
+    </section>
+
+    <section id="sBreath">
+      <div class="lcd breath">
+        <div class="lbl"><span>식히기</span><span id="brN">0 / 5</span></div>
+        <div id="ph">편하게 앉아.</div>
+        <div class="bars" id="bars"><i><b></b></i><i><b></b></i><i><b></b></i></div>
+        <div class="cap"><span>코로 훅</span><span>한 번 더</span><span>입으로 천천히</span></div>
+        <div class="dots" id="dots"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="hap">눈 감아도 됨 · 안드로이드는 진동이 박자를 알려 줌</div>
+      <div class="meter">
+        <div><div class="eng" style="margin-bottom:0.375rem">닫은 고리</div><div class="odo" id="odoBreath"></div></div>
+        <div class="eng r" id="brTally"></div>
+      </div>
+      <div class="keys" style="grid-template-columns:1fr;min-height:3.875rem;margin-top:auto"><button class="key" id="kSkip"><small>SKIP</small>건너뛰기</button></div>
+    </section>
+
+    <section id="sOne">
+      <div class="lcd off">
+        <div class="st"><span>화면 꺼짐</span><i id="oneClock">2:00</i></div>
+        <p style="font-size:0.8125rem" id="oneLcd">폰 엎어 두고 하고 와.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;flex:none">
+        <div class="slot"></div>
+        <div class="receipt" id="receipt">
+          <div class="t"><span>UD-1 · 지금 할 단 하나</span><span id="rcTime">--:--</span></div>
+          <div id="oneT"></div>
+          <div id="oneSub">2분만. 안 끝나도 됨.</div>
+          <div class="line"></div>
+          <div class="rest"><span id="restL"></span><span id="restR"></span></div>
+        </div>
+      </div>
+      <p class="dim" id="oneDim">다 하면 큰 버튼. 못 해도 <b>벌점 없음</b>.</p>
+      <div class="keys big1">
+        <button class="key" id="kLater"><small>LATER</small>나중에</button>
+        <button class="key blue" id="kDone"><small>DONE</small>끝냈다 ↑</button>
+      </div>
+    </section>
+
+    <section id="sRes">
+      <div class="lcd res">
+        <div class="st"><span>다시 온도</span><i id="resTime">0:00</i></div>
+        <div class="tt"><span class="a" id="resB">7</span><em>→</em><span id="resA">4</span></div>
+        <div id="resMsg"></div>
+      </div>
+      <div class="meter">
+        <div><div class="eng" style="margin-bottom:0.375rem">누적 닫은 고리</div><div class="odo" id="odoTotal"></div></div>
+        <div class="eng r" id="resAvg"></div>
+      </div>
+      <div class="tally">
+        <div><b id="tNow">0</b><span>지금</span></div>
+        <div><b id="tDate">0</b><span>날짜 박음</span></div>
+        <div><b id="tOut">0</b><span>손 밖</span></div>
+        <div><b id="tDrop">0</b><span>버림</span></div>
+      </div>
+      <div class="keys end">
+        <button class="key" id="kResDrawer"><small>DRAWER</small>서랍 보기</button>
+        <button class="key dark" id="kOff"><small>OFF</small>기계 끄기</button>
+      </div>
+    </section>
+
+    <section id="sDrawer">
+      <div class="lcd grow">
+        <div class="st"><span>서랍 · 언제가 정해진 것</span><i id="drawerCnt">0</i></div>
+        <div id="drawerList"></div>
+      </div>
+      <p class="dim">여기 있는 건 머리에 안 들고 있어도 돼.</p>
+      <div class="keys" style="grid-template-columns:1fr;min-height:3.875rem"><button class="key" id="kDrawerBack"><small>BACK</small>닫기</button></div>
+    </section>
+  </div>
+</div>
+
+<script src="machine.js"></script>
+<script>
+(() => {
+  const { store, motor, buzz, odo, mmss, hhmm, esc } = UD;
+  const $ = id => document.getElementById(id);
+  const q = new URLSearchParams(location.search);
+  const SPEED = Math.max(1, +q.get('speed') || 1);
+  const FROM_REFRESH = q.get('from') === 'refresh';
+  const WORRY = '걱정 시간 21:30';
+  const WHENS = ['오늘 저녁', '내일 오전', '이번 주말', '다음 주'];
+  const BIN = { now: '지금', date: '날짜 박기', out: '내 손 밖', drop: '버리기' };
+  const WORDS = ['조용함', '조용함', '조용함', '미지근함', '미지근함', '따뜻함', '따뜻함', '꽤 뜨거움', '꽤 뜨거움', '터질 듯', '터질 듯'];
+  const EXAMPLE = '레포트 금요일까지 3장 시작도 안 함\n엄마한테 전화\n방 개판\n택배 반품 언제까지더라\n단톡 답장 안 했음\n다음 달 월세 오르면 어떡하지\n헬스 등록할까 말까\n교수님 메일 답장';
+  // 서랍(날짜·손 밖·남은 지금), 세션 기록(온도·개수), 누적 닫은 고리. 버린 건 저장 안 함.
+  const K = { drawer: 'udada.cool.drawer', sessions: 'udada.cool.sessions', closed: 'udada.cool.closed' };
+  UD.clock($('clock'));
+
+  // ── 화면 전환
+  const STEP = { sTemp: 0, sDump: 1, sSort: 2, sBreath: 3, sOne: 4, sRes: 5, sDrawer: -1 };
+  let cur = null, back = 'sTemp', timer = null;
+  function go(id) {
+    if (cur) $(cur).classList.remove('on');
+    cur = id; $(id).classList.add('on');
+    // 숨겨진 화면의 버튼에 포커스가 남으면 Enter 가 그 버튼을 다시 누른다
+    const ae = document.activeElement;
+    if (ae && ae !== document.body && !$(id).contains(ae)) ae.blur();
+    let n = STEP[id]; if (id === 'sTemp' && S.mode === 'after') n = 5;
+    if (n >= 0) [...$('steps').children].forEach((el, i) => el.className = i < n ? 'on' : i === n ? 'now' : '');
+    $('phone').classList.toggle('night', id === 'sOne');
+    clearInterval(timer); timer = null;
+  }
+
+  const S = { mode: 'before', before: 5, after: 5, feel: null, items: [], i: 0, t0: 0, pick: null, one: null };
+
+  // ── 01 온도
+  const knob = UD.knob($('knob'), v => {
+    S[S.mode === 'before' ? 'before' : 'after'] = v;
+    $('tempN').textContent = v; $('tempWord').textContent = WORDS[v];
+    UD.thermo($('thermo'), v);
+  });
+  $('feel').addEventListener('click', e => {
+    const k = e.target.closest('.key'); if (!k) return;
+    const w = k.firstChild.textContent;
+    S.feel = S.feel === w ? null : w;
+    [...$('feel').children].forEach(el => el.classList.toggle('sel', el.firstChild.textContent === S.feel));
+  });
+  function showTemp(mode) {
+    S.mode = mode;
+    const after = mode === 'after';
+    $('tempLbl').textContent = after ? `다시 온도 · 아까 ${S.before}` : '머리 온도';
+    $('tempTag').textContent = after ? '지금은?' : '지금';
+    $('feelWrap').style.display = after ? 'none' : 'contents';
+    $('kDrawer').style.visibility = after ? 'hidden' : '';
+    $('tempGoT').textContent = after ? '기록하기' : '쏟아내기로';
+    $('tempGoS').textContent = after ? '전후만 남음' : '5초';
+    if (after) S.after = S.before;
+    knob.set(after ? S.after : S.before, true);
+    go('sTemp');
+  }
+  $('kTempGo').onclick = () => {
+    if (S.mode === 'before') { S.t0 = Date.now(); go('sDump'); startDump(); }
+    else finish();
+  };
+
+  // ── 02 비우기
+  const lines = () => $('dumpTxt').value.split('\n').map(s => s.trim()).filter(Boolean);
+  function onDump() {
+    const n = lines().length;
+    odo($('odoOpen'), n);
+    $('kSort').disabled = !n;
+    $('sortS').textContent = n ? `${n}개 → 4칸` : '한 줄 이상';
+  }
+  function startDump() {
+    onDump();
+    const t = Date.now();
+    timer = setInterval(() => { $('dumpClock').textContent = mmss((Date.now() - t) * SPEED); }, 250);
+    setTimeout(() => $('dumpTxt').focus(), 50);
+  }
+  $('dumpTxt').addEventListener('input', onDump);
+  $('kEx').onclick = () => { $('dumpTxt').value = EXAMPLE; onDump(); };
+  $('kSort').onclick = () => {
+    S.items = lines().map(t => ({ t, sug: suggest(t), bin: null, when: null }));
+    S.i = 0; S.pick = null;
+    $('stack').innerHTML = '<i></i>'.repeat(S.items.length);
+    go('sSort'); renderCard();
+  };
+
+  // ── 03 분류: 제안은 단어 규칙 (AI 아님)
+  function whenOf(t) {
+    if (/오늘|저녁|밤/.test(t)) return WHENS[0];
+    if (/주말|토요일|일요일/.test(t)) return WHENS[2];
+    if (/다음 ?주|다음 ?달|다다음/.test(t)) return WHENS[3];
+    return WHENS[1];
+  }
+  function suggest(t) {
+    if (/어떡|어쩌|걱정|불안|혹시|될까|무섭|망하|싫어하|미래|건강|왜 그랬|후회/.test(t))
+      return { bin: 'out', why: `지금 할 수 있는 게 없어 보여 · ${WORRY}에 다시 보여 줄게` };
+    if (/할까 ?말까|말까|해볼까|언젠가|살까|사고 ?싶/.test(t))
+      return { bin: 'drop', why: '꼭 안 해도 되는 것 같아 · 버리면 진짜 지움' };
+    if (t.length <= 14 && /전화|답장|메일|문자|카톡|보내|설거지|빨래|물 |약 |쓰레기|충전|입금|송금/.test(t + ' '))
+      return { bin: 'now', why: '2분이면 끝날 것 같아 · 지금 칸' };
+    const w = whenOf(t);
+    return { bin: 'date', when: w, why: `언제 할지만 정하면 머리에서 내려가 · ${w}` };
+  }
+  const counts = () => S.items.reduce((c, it) => (it.bin && c[it.bin]++, c), { now: 0, date: 0, out: 0, drop: 0 });
+  function renderCard() {
+    const it = S.items[S.i], n = S.items.length, c = counts();
+    $('sortLbl').textContent = `분류 · ${S.i + 1} / ${n}`;
+    [...$('stack').children].forEach((el, i) => el.className = i < S.i ? 'd' : '');
+    const ct = $('cardT'); ct.textContent = it.t; ct.classList.remove('pop'); void ct.offsetWidth; ct.classList.add('pop');
+    renderSug();
+    odo($('odoSort'), S.i);
+    $('sortLeft').innerHTML = `남은 카드 ${n - S.i}장<br>약 ${Math.max(5, (n - S.i) * 5)}초`;
+    [...$('chute').children].forEach(k => { k.querySelector('.cnt').textContent = c[k.dataset.b]; k.classList.toggle('sel', k.dataset.b === (S.pick || it.sug.bin)); });
+  }
+  function renderSug() {
+    const it = S.items[S.i];
+    if (S.pick === 'date') {
+      const w = it.sug.when || WHENS[1];
+      $('sug').innerHTML = `언제 할래? <b>날짜 박기</b><div class="chips">${WHENS.map(x => `<button data-w="${x}"${x === w ? ' class="s"' : ''}>${x}</button>`).join('')}</div>`;
+    } else {
+      $('sug').innerHTML = `제안 ▸ <b>${BIN[it.sug.bin]}</b><br>${esc(it.sug.why)}`;
+    }
+  }
+  const sorted = () => S.i >= S.items.length; // 마지막 카드 뒤 숨으로 넘어가기 전 0.25초 동안의 입력은 무시
+  function commit(bin, when) {
+    if (sorted()) return;
+    const it = S.items[S.i];
+    it.bin = bin;
+    it.when = bin === 'date' ? (when || it.sug.when || WHENS[1]) : bin === 'out' ? WORRY : bin === 'now' ? '오늘 안에' : null;
+    buzz(bin === 'drop' ? [20, 30, 20] : 15);
+    S.pick = null; S.i++;
+    if (S.i >= S.items.length) { odo($('odoSort'), S.i); setTimeout(startBreath, 250); return; }
+    renderCard();
+  }
+  function pickBin(bin) {
+    if (sorted()) return;
+    if (bin === 'date' && S.pick !== 'date') { S.pick = 'date'; renderCard(); return; }
+    commit(bin, bin === 'date' ? (S.items[S.i].sug.when || WHENS[1]) : null);
+  }
+  $('chute').addEventListener('click', e => { const k = e.target.closest('[data-b]'); if (k) pickBin(k.dataset.b); });
+  $('sug').addEventListener('click', e => { const b = e.target.closest('[data-w]'); if (b) commit('date', b.dataset.w); });
+  $('kSug').onclick = () => { if (sorted()) return; const s = S.items[S.i].sug; commit(s.bin, s.when); };
+  document.addEventListener('keydown', e => {
+    if (cur !== 'sSort' || e.repeat) return;
+    const b = { 1: 'now', 2: 'date', 3: 'out', 4: 'drop' }[e.key];
+    if (b) pickBin(b);
+    if (e.key === 'Enter') { e.preventDefault(); $('kSug').click(); }
+  });
+
+  // ── 04 식히기: 코로 들이쉬기 → 한 번 더 → 입으로 길게. 5회 (Balban 2023 cyclic sighing)
+  const PHASES = [{ t: '코로<br>훅 들이쉬기', d: 2000 }, { t: '한 번 더<br>훅', d: 1000 }, { t: '이제 입으로<br>길—게 내쉬기', d: 5500 }];
+  let brTimers = [];
+  function startBreath() {
+    const c = counts();
+    odo($('odoBreath'), S.items.length);
+    $('brTally').innerHTML = `${S.items.length}개 전부 자리 찾음<br>지금 ${c.now} · 날짜 ${c.date} · 손 밖 ${c.out} · 버림 ${c.drop}`;
+    go('sBreath');
+    const bars = [...$('bars').querySelectorAll('b')], dots = [...$('dots').children];
+    const reset = () => bars.forEach((b, i) => { b.style.transition = 'none'; b.style.transform = i === 2 ? 'scaleX(0)' : 'scaleY(0)'; });
+    reset(); dots.forEach(d => d.className = ''); $('brN').textContent = '0 / 5'; $('ph').innerHTML = '편하게 앉아.<br>어깨 내리고.';
+    let t = 1200 / SPEED;
+    for (let r = 0; r < 5; r++) {
+      PHASES.forEach((p, i) => {
+        brTimers.push(setTimeout(() => {
+          if (i === 0) { reset(); void bars[0].offsetWidth; $('brN').textContent = `${r + 1} / 5`; }
+          $('ph').innerHTML = p.t;
+          const b = bars[i], d = p.d / SPEED;
+          if (i === 2) { b.style.transition = 'none'; b.style.transform = 'scaleX(1)'; void b.offsetWidth; }
+          b.style.transition = `transform ${d}ms ${i === 2 ? 'linear' : 'ease-out'}`;
+          b.style.transform = i === 2 ? 'scaleX(0)' : 'scaleY(1)';
+          if (i < 2) buzz([12, 60, 12]);
+        }, t));
+        t += p.d / SPEED;
+      });
+      brTimers.push(setTimeout(() => dots[r].className = 'd', t - 10));
+    }
+    brTimers.push(setTimeout(showOne, t + 300 / SPEED));
+  }
+  const stopBreath = () => { brTimers.forEach(clearTimeout); brTimers = []; };
+  $('kSkip').onclick = () => { stopBreath(); showOne(); };
+
+  // ── 05 하나만
+  function showOne() {
+    stopBreath();
+    const nows = S.items.filter(it => it.bin === 'now'), c = counts();
+    S.one = nows[0] || null;
+    go('sOne');
+    const rc = $('receipt'); rc.classList.remove('print'); void rc.offsetWidth; rc.classList.add('print');
+    motor(1.1); buzz([30, 40, 30, 40, 30]);
+    $('rcTime').textContent = hhmm();
+    if (S.one) {
+      $('oneT').textContent = S.one.t;
+      $('oneSub').textContent = '2분만. 안 끝나도 됨.';
+      $('restL').textContent = `나머지 ${S.items.length - 1}개`;
+      $('restR').textContent = nows.length > 1 ? `지금 칸 ${nows.length - 1}개는 이따` : '전부 자리 정해짐';
+      $('oneLcd').textContent = '폰 엎어 두고 하고 와.';
+      $('oneDim').innerHTML = '다 하면 큰 버튼. 못 해도 <b>벌점 없음</b>.';
+      $('kDone').innerHTML = '<small>DONE</small>끝냈다 ↑';
+      $('kLater').style.visibility = '';
+    } else {
+      $('oneT').textContent = '아무것도 안 해도 돼.';
+      $('oneSub').textContent = '창밖 먼 데를 40초 보고 와.';
+      $('restL').textContent = `${S.items.length}개`;
+      $('restR').textContent = `날짜 ${c.date} · 손 밖 ${c.out} · 버림 ${c.drop}`;
+      $('oneLcd').textContent = '지금 할 건 없음. 눈만 쉬고 와.';
+      $('oneDim').innerHTML = '돌아오면 큰 버튼.';
+      $('kDone').innerHTML = '<small>BACK</small>보고 왔다 ↑';
+      $('kLater').style.visibility = 'hidden';
+    }
+    const t = Date.now(), dur = 120000;
+    timer = setInterval(() => { $('oneClock').textContent = mmss(dur - (Date.now() - t) * SPEED); }, 250);
+  }
+  function leaveOne() {
+    if (!FROM_REFRESH) return showTemp('after');
+    saveItems();
+    location.href = 'refresh.html?back=cooler';
+  }
+  $('kDone').onclick = () => { if (S.one) S.one.done = true; buzz(40); leaveOne(); };
+  $('kLater').onclick = leaveOne;
+
+  // ── 06 기록과 결과
+  function saveItems() {
+    const drawer = store.get(K.drawer, []), at = Date.now();
+    S.items.forEach((it, i) => {
+      if (it.bin === 'date' || it.bin === 'out' || (it.bin === 'now' && !it.done)) drawer.push({ id: `${at}-${i}`, t: it.t, bin: it.bin, when: it.when, at });
+    });
+    store.set(K.drawer, drawer);
+    const closed = store.get(K.closed, 0) + S.items.length;
+    store.set(K.closed, closed);
+    return closed;
+  }
+  function finish() {
+    const c = counts(), ms = Date.now() - S.t0, closed = saveItems();
+    const sessions = store.get(K.sessions, []);
+    sessions.push({ at: Date.now(), b: S.before, a: S.after, feel: S.feel, n: S.items.length, c, ms });
+    store.set(K.sessions, sessions);
+
+    $('resB').textContent = S.before; $('resA').textContent = S.after;
+    $('resB').classList.toggle('a', S.after < S.before);
+    $('resTime').textContent = mmss(ms * SPEED);
+    const next = S.items.find(it => it.bin === 'date');
+    const msg = [`머리에서 ${S.items.length}개를 내려놨어.`];
+    if (S.after >= S.before) msg.push('온도는 그대로야. 그래도 고리는 다 닫혔어.');
+    if (c.drop) msg.push(`${c.drop}개는 진짜로 지웠어.`);
+    if (next) msg.push(`다음 건 ${next.when}.`);
+    $('resMsg').textContent = msg.join(' ');
+    $('tNow').textContent = c.now; $('tDate').textContent = c.date; $('tOut').textContent = c.out; $('tDrop').textContent = c.drop;
+    odo($('odoTotal'), closed, 4);
+    const ds = sessions.map(s => s.a - s.b);
+    $('resAvg').innerHTML = sessions.length >= 2 ? `세션 ${sessions.length}회 평균<br>온도 ${(ds.reduce((x, y) => x + y, 0) / ds.length).toFixed(1)}` : '첫 세션<br>다음부터 평균이 보여';
+    go('sRes');
+  }
+  $('kOff').onclick = reset;
+  function reset() {
+    S.items = []; S.feel = null; S.one = null; S.before = 5;
+    $('dumpTxt').value = '';
+    [...$('feel').children].forEach(el => el.classList.remove('sel'));
+    refreshDrawerN(); showTemp('before');
+  }
+
+  // ── 서랍
+  function refreshDrawerN() { $('drawerN').textContent = store.get(K.drawer, []).length; }
+  function renderDrawer() {
+    const d = store.get(K.drawer, []);
+    $('drawerCnt').textContent = d.length;
+    if (!d.length) { $('drawerList').innerHTML = '<div class="empty">비어 있음.<br>머리가 비었거나, 아직 안 넣었거나.</div>'; return; }
+    const order = ['오늘 안에', ...WHENS, WORRY];
+    const groups = {};
+    d.forEach(it => (groups[it.when] = groups[it.when] || []).push(it));
+    $('drawerList').innerHTML = Object.keys(groups).sort((a, b) => order.indexOf(a) - order.indexOf(b)).map(w =>
+      `<div class="g">${esc(w)}</div>` + groups[w].map(it => `<div class="it"><span>${esc(it.t)}</span><button class="clickable" data-id="${it.id}">✓ 끝</button></div>`).join('')
+    ).join('');
+  }
+  function openDrawer(from) { back = from; renderDrawer(); go('sDrawer'); }
+  $('drawerList').addEventListener('click', e => {
+    const b = e.target.closest('[data-id]'); if (!b) return;
+    store.set(K.drawer, store.get(K.drawer, []).filter(it => it.id !== b.dataset.id));
+    renderDrawer(); refreshDrawerN();
+  });
+  $('kDrawer').onclick = () => openDrawer('sTemp');
+  $('kResDrawer').onclick = () => openDrawer('sRes');
+  $('kDrawerBack').onclick = () => { refreshDrawerN(); go(back); };
+
+  reset();
+  if (FROM_REFRESH) { S.t0 = Date.now(); go('sDump'); startDump(); }
+})();
+</script>
+</body>
+</html>

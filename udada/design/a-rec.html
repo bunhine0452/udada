@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우다다 시안 A — 녹화중</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 은유: 숏폼을 '보는' 사람이 아니라 '찍는' 사람. 할 일 = 내가 찍는 장면 한 컷.
+   색: 뷰파인더 검정 + 흰 HUD + 녹화 빨강 하나. 그라데이션 없음. */
+:root{
+  --vf:#0E0F0D; --vf2:#1A1B18; --hud:#F2F0EA; --hud2:#8D8B84; --line:rgba(242,240,234,.18);
+  --rec:#FF3B1F; --slate:#151614; --chalk:#E9E6DD;
+  --sans:"IBM Plex Sans KR",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0}
+body{background:#CFCCC4;color:#141412;font-family:var(--sans);-webkit-font-smoothing:antialiased;word-break:keep-all;padding:40px 32px 64px}
+.sheet-h{max-width:1180px;margin:0 auto 36px;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:end;border-bottom:1.5px solid #141412;padding-bottom:14px}
+.sheet-h .tag{font:700 12px var(--mono);letter-spacing:.08em}
+.sheet-h h1{font-size:34px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.sheet-h p{font-size:14px;color:#55534d;max-width:520px;line-height:1.55}
+.sw{display:flex;gap:6px}.sw i{width:22px;height:22px;border:1px solid #14141244}
+.row{display:flex;gap:44px;justify-content:center;flex-wrap:wrap}
+figure{display:grid;gap:14px}
+figcaption{font:500 12px var(--mono);color:#55534d;letter-spacing:.04em}
+figcaption b{color:#141412}
+.phone{width:360px;height:780px;border-radius:46px;overflow:hidden;position:relative;background:var(--vf);color:var(--hud);box-shadow:0 0 0 9px #0a0a0a,0 40px 70px -30px rgba(0,0,0,.55)}
+.sb{position:absolute;top:0;left:0;right:0;height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font:600 14px var(--sans);z-index:5}
+
+/* ---------- 1. 슬레이트 ---------- */
+.slate{position:absolute;inset:0;background:var(--vf);padding:58px 18px 22px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;justify-content:space-between;align-items:baseline}
+.logo{font-weight:700;font-size:22px;letter-spacing:-.06em}
+.logo span{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--rec);margin-left:3px;vertical-align:2px}
+.meta{font:500 11px var(--mono);color:var(--hud2)}
+.board{background:var(--slate);border:1.5px solid #2c2d29;border-radius:6px;margin-top:8px;flex:1;display:flex;flex-direction:column}
+.clap{height:34px;background:repeating-linear-gradient(-55deg,var(--chalk) 0 18px,#111 18px 36px);transform-origin:0 100%;transform:rotate(-5deg);border-radius:5px 5px 0 0;margin:0 -1px}
+.clap2{height:16px;margin:2px -1px 0;background:repeating-linear-gradient(55deg,var(--chalk) 0 18px,#111 18px 36px)}
+.fields{display:grid;grid-template-columns:1fr 1fr 1.2fr;border-bottom:1.5px solid #2c2d29}
+.fields div{padding:8px 10px;border-left:1.5px solid #2c2d29}
+.fields div:first-child{border-left:0}
+.fields small{display:block;font:500 10px var(--sans);color:var(--hud2)}
+.fields b{font:700 17px var(--mono);color:var(--chalk)}
+.dump{flex:1;padding:14px 14px 0;font-size:17px;line-height:1.85;color:var(--chalk)}
+.dump small{display:block;font:500 11px var(--sans);color:var(--hud2);margin-bottom:4px}
+.dump p{border-bottom:1px dashed #34352f}
+.dump p.ghost{color:#55564f}
+.caret{display:inline-block;width:2px;height:19px;background:var(--rec);vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.dur{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1.5px solid #2c2d29;border-radius:6px;overflow:hidden}
+.dur button{all:unset;text-align:center;padding:10px 0;font:700 13px var(--mono);color:var(--hud2);border-left:1.5px solid #2c2d29}
+.dur button:first-child{border-left:0}
+.dur button.on{background:var(--hud);color:var(--vf)}
+.shoot{display:flex;align-items:center;gap:16px;padding-top:2px}
+.shutter{width:74px;height:74px;border-radius:50%;border:4px solid var(--hud);display:grid;place-items:center;flex:none}
+.shutter i{width:56px;height:56px;border-radius:50%;background:var(--rec);transition:transform .15s}
+.shutter:active i{transform:scale(.85)}
+.shoot b{font-size:19px;letter-spacing:-.03em;display:block}
+.shoot span{font:500 11px var(--mono);color:var(--hud2)}
+
+/* ---------- 2. 뷰파인더 ---------- */
+.vf{position:absolute;inset:0;background:var(--vf)}
+.grid3{position:absolute;inset:0;background:
+  linear-gradient(var(--line),var(--line)) 33.33% 0/1px 100% no-repeat,
+  linear-gradient(var(--line),var(--line)) 66.66% 0/1px 100% no-repeat,
+  linear-gradient(var(--line),var(--line)) 0 33.33%/100% 1px no-repeat,
+  linear-gradient(var(--line),var(--line)) 0 66.66%/100% 1px no-repeat;opacity:.6}
+.brk{position:absolute;width:26px;height:26px;border:2px solid var(--hud)}
+.brk.tl{top:54px;left:16px;border-right:0;border-bottom:0}.brk.tr{top:54px;right:16px;border-left:0;border-bottom:0}
+.brk.bl{bottom:84px;left:16px;border-right:0;border-top:0}.brk.br{bottom:84px;right:16px;border-left:0;border-top:0}
+.hud{position:absolute;top:62px;left:28px;right:28px;display:flex;justify-content:space-between;font:700 13px var(--mono)}
+.rec{display:flex;align-items:center;gap:7px}
+.rec i{width:10px;height:10px;border-radius:50%;background:var(--rec);animation:blink 1.2s steps(1) infinite}
+.tc{font-variant-numeric:tabular-nums}
+.tc em{font-style:normal;color:var(--hud2)}
+.bat{display:flex;align-items:center;gap:6px;color:var(--hud2);font-size:11px}
+.bat span{display:inline-flex;gap:2px;padding:2px;border:1.5px solid var(--hud);border-radius:2px}
+.bat span i{width:6px;height:9px;background:var(--hud)}
+.bat span i.off{background:transparent}
+.hud2{position:absolute;top:86px;left:28px;right:28px;display:flex;justify-content:space-between;font:500 11px var(--mono);color:var(--hud2)}
+.focus{position:absolute;left:50%;top:41%;width:64px;height:64px;transform:translate(-50%,-50%);border:1.5px solid var(--hud);opacity:.5}
+.focus::before,.focus::after{content:"";position:absolute;background:var(--hud)}
+.focus::before{left:50%;top:-8px;width:1.5px;height:8px}.focus::after{top:50%;left:-8px;height:1.5px;width:8px}
+.scene{position:absolute;left:28px;right:92px;bottom:150px}
+.scene .lbl{font:700 11px var(--mono);color:var(--rec);letter-spacing:.1em;margin-bottom:10px}
+.scene h2{font-size:38px;font-weight:700;line-height:1.12;letter-spacing:-.05em}
+.scene p{margin-top:12px;font-size:14px;color:var(--hud2);line-height:1.5}
+.scene p b{color:var(--hud);font-weight:500}
+.rail{position:absolute;right:16px;bottom:150px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.rail button{all:unset;display:grid;justify-items:center;gap:5px;font:700 10px var(--mono);color:var(--hud);letter-spacing:.06em}
+.rail .k{width:46px;height:46px;border:1.5px solid var(--hud);border-radius:50%;display:grid;place-items:center}
+.rail .k.done{background:var(--hud);color:var(--vf)}
+.rail svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.scrub{position:absolute;left:16px;right:16px;bottom:40px}
+.scrub .ticks{display:grid;grid-template-columns:3fr 8fr 5fr 2fr 6fr 4fr 3fr;gap:3px;height:22px}
+.scrub .ticks i{background:#2a2b27;position:relative}
+.scrub .ticks i.d{background:var(--hud2)}
+.scrub .ticks i.c{background:#2a2b27;overflow:hidden}
+.scrub .ticks i.c::before{content:"";position:absolute;inset:0 auto 0 0;width:22%;background:var(--rec)}
+.scrub .ticks i.c::after{content:"";position:absolute;top:-6px;bottom:-6px;left:22%;width:2px;background:var(--hud)}
+.scrub .lab{display:flex;justify-content:space-between;margin-top:8px;font:500 10px var(--mono);color:var(--hud2)}
+.cue{position:absolute;left:0;right:0;bottom:104px;text-align:center;font:700 11px var(--mono);color:var(--hud2);letter-spacing:.02em}
+
+/* ---------- 3. 컷 ---------- */
+.cut{position:absolute;inset:0;background:var(--vf)}
+.cut .freeze{position:absolute;left:28px;right:28px;top:176px;height:236px;border:1.5px solid var(--hud);padding:18px;display:flex;flex-direction:column;justify-content:flex-end;transform:rotate(-2.5deg);background:var(--vf2)}
+.cut .freeze small{font:700 10px var(--mono);color:var(--hud2);letter-spacing:.1em;position:absolute;top:14px;left:18px}
+.cut .freeze small.r{left:auto;right:18px;color:var(--rec)}
+.cut .freeze h3{font-size:26px;line-height:1.15;letter-spacing:-.04em;text-decoration:line-through;text-decoration-color:var(--rec);text-decoration-thickness:3px}
+.slam{position:absolute;left:22px;top:58px;z-index:2;font:700 108px/1 var(--sans);letter-spacing:-.08em;color:var(--hud);mix-blend-mode:difference;animation:slam .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes slam{from{transform:scale(1.6);opacity:0}}
+.xp{position:absolute;left:28px;right:28px;top:440px;display:grid;grid-template-columns:1fr auto;align-items:end;border-top:1.5px solid var(--hud);padding-top:12px}
+.xp b{font:700 56px/1 var(--mono);letter-spacing:-.04em}
+.xp b sup{font-size:18px;vertical-align:28px;color:var(--hud2)}
+.xp div{text-align:right;font:700 11px/1.9 var(--mono);color:var(--hud2)}
+.xp div em{font-style:normal;color:var(--vf);background:var(--rec);padding:1px 6px}
+.roll{position:absolute;left:0;right:0;bottom:46px;height:118px;background:#050505;padding:16px 0;overflow:hidden}
+.roll::before,.roll::after{content:"";position:absolute;left:0;right:0;height:8px;background:repeating-linear-gradient(90deg,transparent 0 6px,#2f302b 6px 14px,transparent 14px 20px)}
+.roll::before{top:4px}.roll::after{bottom:4px}
+.frames{display:flex;gap:6px;padding-left:16px;animation:roll 1s .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes roll{from{transform:translateX(70px)}}
+.frames div{flex:none;width:62px;height:86px;border:1px solid #3a3b36;background:var(--vf2);padding:6px;font:500 8.5px/1.35 var(--sans);color:var(--hud2);display:flex;flex-direction:column;justify-content:space-between}
+.frames div b{font:700 9px var(--mono);color:var(--hud)}
+.frames div.new{border-color:var(--rec);color:var(--hud)}
+.frames div.e{opacity:.35}
+.next{position:absolute;left:0;right:0;bottom:14px;text-align:center;font:500 12px var(--sans);color:var(--hud2)}
+.next b{color:var(--hud)}
+</style>
+</head>
+<body>
+<header class="sheet-h">
+  <div><div class="tag">시안 A</div><h1>녹화중</h1></div>
+  <p>숏폼을 보는 사람에서 <b>찍는 사람</b>으로. 클립 하나 = 내가 찍는 한 컷. 쏟아내기는 슬레이트에 쓰고, 셔터를 누르면 촬영이 시작된다. 끝내면 "컷" — 필름 롤에 쌓인다.</p>
+  <div class="sw"><i style="background:#0E0F0D"></i><i style="background:#F2F0EA"></i><i style="background:#8D8B84"></i><i style="background:#FF3B1F"></i></div>
+</header>
+<div class="row">
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="slate">
+    <div class="top"><div class="logo">우다다<span></span></div><div class="meta">CARD 64GB · 남은 컷 ∞</div></div>
+    <div class="board">
+      <div class="clap"></div><div class="clap2"></div>
+      <div class="fields">
+        <div><small>씬</small><b>오늘</b></div>
+        <div><small>테이크</small><b>01</b></div>
+        <div><small>감독</small><b>나</b></div>
+      </div>
+      <div class="dump">
+        <small>찍을 거 · 막 써도 됨</small>
+        <p>레포트 금요일까지 3장 아직 시작도 안 함</p>
+        <p>엄마한테 전화</p>
+        <p>방 개판</p>
+        <p>택배 반품 언제까지더라</p>
+        <p>단톡 답장 안 했음<span class="caret"></span></p>
+        <p class="ghost">&nbsp;</p>
+      </div>
+    </div>
+    <div class="dur"><button>30분</button><button class="on">1시간</button><button>2시간</button><button>오늘</button></div>
+    <div class="shoot">
+      <div class="shutter"><i></i></div>
+      <div><b>잘라서 촬영 시작</b><span>AI가 2~10분짜리 컷으로 나눠 줌</span></div>
+    </div>
+  </div>
+</div>
+<figcaption><b>01 슬레이트</b> — 쏟아내기</figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="vf">
+    <div class="grid3"></div>
+    <i class="brk tl"></i><i class="brk tr"></i><i class="brk bl"></i><i class="brk br"></i>
+    <div class="hud">
+      <div class="rec"><i></i>REC</div>
+      <div class="tc">00:00:39 <em>/ 03:00</em></div>
+      <div class="bat"><span><i></i><i></i><i class="off"></i></span></div>
+    </div>
+    <div class="hud2"><span>컷 2 / 7</span><span>테이크 ×3</span><span>쉬기까지 1컷</span></div>
+    <div class="focus"></div>
+    <div class="scene">
+      <div class="lbl">#2 · 레포트</div>
+      <h2>레포트 파일 열고 제목만 쓰기</h2>
+      <p>첫 동작 — <b>노트북 화면 켜기</b></p>
+    </div>
+    <div class="rail">
+      <button><span class="k done"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>컷</button>
+      <button><span class="k"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></span>쪼개기</button>
+      <button><span class="k"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg></span>생각남</button>
+      <button><span class="k"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg></span>나중에</button>
+    </div>
+    <div class="cue">↑ 밀어서 컷</div>
+    <div class="scrub">
+      <div class="ticks"><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="lab"><span>00:03:00 완료</span><span>오늘 촬영 분량 31분</span></div>
+    </div>
+  </div>
+</div>
+<figcaption><b>02 뷰파인더</b> — 할 일 한 컷</figcaption>
+</figure>
+
+<figure>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="cut">
+    <div class="freeze">
+      <small>#2 · 02:41</small><small class="r">■ STOP</small>
+      <h3>레포트 파일 열고 제목만 쓰기</h3>
+    </div>
+    <div class="slam">컷.</div>
+    <div class="xp">
+      <b>+28<sup>XP</sup></b>
+      <div>기본 14 · 테이크 ×3<br><em>크리티컬 ×2</em></div>
+    </div>
+    <div class="roll">
+      <div class="frames">
+        <div><b>#1</b>택배 반품 접수</div>
+        <div class="new"><b>#2</b>레포트 제목 쓰기</div>
+        <div class="e"><b>#3</b>참고문헌 3개</div>
+        <div class="e"><b>#4</b>엄마 전화</div>
+        <div class="e"><b>#5</b>책상 위만</div>
+      </div>
+    </div>
+    <div class="next">다음 테이크 <b>3</b> · 바로 밀어도 됨</div>
+  </div>
+</div>
+<figcaption><b>03 컷</b> — 끝냈을 때 보상</figcaption>
+</figure>
+
+</div>
+</body>
+</html>

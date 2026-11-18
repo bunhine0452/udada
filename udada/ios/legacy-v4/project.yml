@@ -1,0 +1,53 @@
+# xcodegen generate  →  Udada.xcodeproj
+# v3: SwiftUI 네이티브. 웹 동작판(../design)은 디자인 기준으로만 남는다.
+name: Udada
+options:
+  bundleIdPrefix: io.github.bunhine0452
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    DEVELOPMENT_TEAM: BP57Z7L498
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "0.4.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+targets:
+  Udada:
+    type: application
+    platform: iOS
+    sources:
+      - path: Udada
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada
+        PRODUCT_NAME: Udada
+        INFOPLIST_FILE: Udada/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  UdadaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [UdadaTests]
+    dependencies: [{ target: Udada }]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.tests
+  UdadaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UdadaUITests]
+    dependencies: [{ target: Udada }]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.uitests
+        TEST_TARGET_NAME: Udada
+schemes:
+  Udada:
+    build:
+      targets: { Udada: all }
+    test:
+      targets: [UdadaTests, UdadaUITests]

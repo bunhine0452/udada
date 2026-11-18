@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>ko</string>
+	<key>CFBundleDisplayName</key>
+	<string>우다다</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>우다다</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>io.github.bunhine0452.udada</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>udada</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>손글씨 목록이나 일정표를 찍으면 기기 안에서 글자를 읽어 할 일로 옮겨. 사진은 저장하지 않아.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>말로 쏟아낼 때 목소리를 글자로 바꾸려고 마이크를 써. 녹음은 저장하지 않아.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>말로 쏟아낸 것을 기기 안에서 글자로 바꿔. 녹음은 저장하지 않아.</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>io.github.bunhine0452.udada.today</string>
+		<string>io.github.bunhine0452.udada.task</string>
+	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>기기 달력의 약속을 하루 한 장의 띠에 같이 보여 주려고 읽어. 바꾸거나 밖으로 보내지 않아.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>GowunBatang-Bold.ttf</string>
+	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBody</string>
+	</dict>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+</dict>
+</plist>

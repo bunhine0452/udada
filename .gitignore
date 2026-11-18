@@ -1,0 +1,26 @@
+# oculpm:begin v1
+.oculpm/index/
+.oculpm/hooks/
+.oculpm/agents/live/
+.oculpm/agents/inbox/
+.oculpm/agents/tasks/
+.oculpm/agents/leases/
+.oculpm/agents/audit/
+.oculpm/.lock
+.oculpm/.schema-version
+.oculpm/oculpm.log
+.oculpm.backup-*/
+# oculpm:end
+
+# 빌드 산출물 · 생성물
+.DS_Store
+udada/ios/build/
+udada/ios/Udada.xcodeproj/
+udada/film/out/
+udada/ios-v4-backup-*.tgz
+xcuserdata/
+DerivedData/
+*.xcarchive
+*.xcresult
+__pycache__/
+.vscode/

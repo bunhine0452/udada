@@ -1,0 +1,152 @@
+# xcodegen generate  →  Udada.xcodeproj
+# v5: 「하루 한 장」 구조로 새로 지은 SwiftUI 앱 + 위젯 확장. 옛 v4(기계) 코드는 legacy-v4/ 에 보관(빌드 안 함).
+name: Udada
+options:
+  bundleIdPrefix: io.github.bunhine0452
+  deploymentTarget:
+    iOS: "18.0"
+    macOS: "26.0"
+settings:
+  base:
+    DEVELOPMENT_TEAM: BP57Z7L498
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.2"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+targets:
+  Udada:
+    type: application
+    platform: iOS
+    sources:
+      - path: Udada
+      - path: Shared
+    dependencies:
+      - target: UdadaWidgets
+        embed: true
+      - target: UdadaShare
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada
+        PRODUCT_NAME: Udada
+        INFOPLIST_FILE: Udada/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Udada/Udada.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Apple 지능(Foundation Models)은 iOS 26+ — 그 아래 기기에서도 실행되게 약하게 링크
+        OTHER_LDFLAGS: ["$(inherited)", "-weak_framework", "FoundationModels"]
+        # 시각 지능도 iOS 26+ · 기기 SDK 에만 있다
+        "OTHER_LDFLAGS[sdk=iphoneos*]": ["$(inherited)", "-weak_framework", "FoundationModels", "-weak_framework", "VisualIntelligence"]
+  UdadaWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: UdadaWidgets
+      - path: Shared
+      - path: Udada/Resources/Fonts
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.widgets
+        PRODUCT_NAME: UdadaWidgets
+        INFOPLIST_FILE: UdadaWidgets/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: UdadaWidgets/UdadaWidgets.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+  # 공유 확장: 다른 앱의 글·사진·녹음을 '받아 둔 것'에 넣기만 한다 (정리는 앱에서)
+  UdadaShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: UdadaShare
+      - path: Shared/Inbox.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.share
+        PRODUCT_NAME: UdadaShare
+        INFOPLIST_FILE: UdadaShare/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: UdadaShare/UdadaShare.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+  # Mac: 메뉴 막대 + 하루 한 장 창. 모델·규칙·두뇌·맞추기는 iPhone 과 같은 파일을 쓴다.
+  UdadaMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: UdadaMac
+      - path: Shared
+        excludes: [UdadaActivity.swift, WidgetIntents.swift]
+      - path: Udada/App
+      - path: Udada/Sync
+      - path: Udada/AI
+        excludes: [AIBadge.swift, TextScanView.swift, VoiceDumpView.swift, VoiceInput.swift]
+      - path: Udada/Records/Stats.swift
+      - path: Udada/Mind/DumpPlan.swift
+      - path: Udada/Services/CalendarService.swift
+      - path: Udada/Services/NotificationRouter.swift
+      - path: Udada/Intents
+        excludes: [SiriTips.swift, FocusFilter.swift]
+      - path: Udada/Resources/Fonts
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada
+        PRODUCT_NAME: Udada
+        INFOPLIST_FILE: UdadaMac/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: UdadaMac/UdadaMac.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        OTHER_LDFLAGS: ["$(inherited)", "-weak_framework", "FoundationModels"]
+  # 맞추기 규칙 테스트 — 시뮬레이터 없이 Mac 에서 바로 돈다 (앱을 띄우지 않는다)
+  UdadaMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: UdadaMacTests
+      - path: Shared
+        excludes: [UdadaActivity.swift, WidgetIntents.swift, Theme.swift]
+      - path: Udada/AI/BrainFallback.swift
+      - path: Udada/AI/Finder.swift
+      - path: Udada/AI/Commander.swift
+      - path: Udada/AI/Breakdown.swift
+      - path: Udada/AI/Capture.swift
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.mactests
+        CODE_SIGNING_ALLOWED: NO
+  UdadaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [UdadaTests]
+    dependencies: [{ target: Udada }]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.tests
+  UdadaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UdadaUITests]
+    dependencies: [{ target: Udada }]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.bunhine0452.udada.uitests
+        TEST_TARGET_NAME: Udada
+schemes:
+  Udada:
+    build:
+      targets: { Udada: all }
+    test:
+      targets: [UdadaTests, UdadaUITests]
+  UdadaWidgets:
+    build:
+      targets: { UdadaWidgets: all }
+  UdadaMac:
+    build:
+      targets: { UdadaMac: all }
+    test:
+      targets: [UdadaMacTests]

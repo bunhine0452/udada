@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우다다 — 파쇄기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbit&family=JetBrains+Mono:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 파쇄기: 생각을 '물건'처럼 버리면 마음에서도 덜 쓴다 (Briñol 2012), 파쇄기로 갈면 분노가 사라졌다 (Kanaya & Kawai 2024).
+   단, 상상보다 실제 동작일 때 효과가 컸다 → 손가락으로 밀어 넣고, 모터 소리·진동·종이 조각으로 최대한 '물리적'으로. */
+:root{
+  --body:#D9D7D1; --body2:#CAC7BF; --edge:#A9A69E; --ink:#1D1D1B; --ink2:#6F6C65;
+  --lcd:#B9C3A8; --seg:#1E2619; --blue:#2E4BF0; --blue2:#1B2FAE; --paper:#F6F4EE;
+  --sans:"Pretendard Variable",Pretendard,system-ui,sans-serif; --lcdf:"Orbit",sans-serif; --mono:"JetBrains Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#ECEAE5;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;word-break:keep-all;display:flex;gap:56px;justify-content:center;align-items:center;padding:32px;min-height:100%}
+button{font-family:inherit;color:inherit}
+
+/* 설명 패널 (데스크톱에서만) */
+.note{width:340px;font-size:14px;line-height:1.65;color:#45433e}
+.note .tag{font:700 12px var(--mono);margin-bottom:8px;color:var(--ink)}
+.note h1{font-size:34px;font-weight:800;letter-spacing:-.05em;line-height:1.05;color:var(--ink);margin-bottom:14px}
+.note h2{font-size:13px;font-weight:800;color:var(--ink);margin:18px 0 6px;border-top:1.5px solid var(--ink);padding-top:10px}
+.note ul{padding-left:16px}
+.note li{margin:3px 0}
+.note small{display:block;font:700 10.5px/1.6 var(--mono);color:var(--ink2);margin-top:4px}
+.note kbd{font:700 11px var(--mono);border:1px solid #bbb;border-bottom-width:2px;border-radius:4px;padding:0 5px;background:#fff}
+@media (max-width:820px){.note{display:none} body{padding:0;background:var(--body)}}
+
+/* 기계 */
+.phone{width:360px;height:780px;border-radius:46px;overflow:hidden;position:relative;background:var(--body);box-shadow:0 0 0 9px #0a0a0a,0 40px 70px -30px rgba(0,0,0,.45);flex:none;user-select:none;-webkit-user-select:none;touch-action:none}
+@media (max-width:820px){.phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}}
+.phone.shake{animation:shake .09s linear infinite}
+@keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(.6px,-.4px)}50%{transform:translate(-.5px,.5px)}75%{transform:translate(.4px,.6px)}}
+.sb{position:absolute;top:0;left:0;right:0;height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font:700 14px var(--sans);z-index:20}
+.brand{position:absolute;top:54px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;z-index:5}
+.brand b{font:800 20px var(--sans);letter-spacing:-.06em}
+.brand b sub{font:700 9px var(--mono);vertical-align:0;margin-left:4px;color:var(--ink2)}
+.eng{font:700 9.5px var(--sans);letter-spacing:.04em;color:var(--ink2)}
+.pwr{display:flex;align-items:center;gap:6px}
+.pwr i{width:8px;height:8px;border-radius:50%;background:#9e9b93;box-shadow:inset 0 1px 1px rgba(0,0,0,.35);transition:.15s}
+.pwr i.on{background:#3BD16F;box-shadow:0 0 0 2px rgba(59,209,111,.2),0 0 8px rgba(59,209,111,.8)}
+
+.lcd{position:absolute;top:90px;left:24px;right:24px;height:64px;background:var(--lcd);border-radius:8px;padding:9px 12px;color:var(--seg);font-family:var(--lcdf);
+  box-shadow:inset 0 2px 0 rgba(0,0,0,.18),inset 0 0 0 1px rgba(0,0,0,.12),0 0 0 6px var(--ink),0 0 0 7px var(--edge);z-index:5}
+.lcd::after{content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.035) 0 1px,transparent 1px 3px)}
+.lcd .l1{display:flex;justify-content:space-between;font-size:10px;opacity:.8}
+.lcd .l2{font-size:17px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lcd .pbar{position:absolute;left:12px;right:12px;bottom:8px;height:3px;background:rgba(30,38,25,.15)}
+.lcd .pbar i{display:block;height:100%;width:0;background:var(--seg)}
+
+/* 급지 영역 (슬롯 위) */
+.feed{position:absolute;left:0;right:0;top:166px;height:226px;overflow:hidden;z-index:3}
+.card{position:absolute;left:50%;width:250px;margin-left:-125px;height:172px;background:var(--paper);padding:16px 18px;box-shadow:0 1px 0 rgba(0,0,0,.08),0 10px 18px -10px rgba(0,0,0,.35);cursor:grab;touch-action:none}
+.card .h{display:flex;justify-content:space-between;font:700 10.5px var(--mono);color:#8a877f;border-bottom:1px dashed #c9c5ba;padding-bottom:7px}
+.card .t{font:800 22px/1.38 var(--sans);letter-spacing:-.04em;color:var(--ink);margin-top:11px;outline:none;min-height:60px;max-height:92px;overflow:hidden;cursor:text}
+.card .t:empty::before{content:"버릴 생각을 적어";color:#b8b4aa}
+.card .f{position:absolute;left:18px;right:18px;bottom:12px;display:flex;justify-content:space-between;font:700 10px var(--mono);color:#a29e94}
+.card.drag{cursor:grabbing}
+.hint{position:absolute;left:0;right:0;bottom:6px;text-align:center;font:700 10.5px var(--sans);color:var(--ink2);transition:opacity .2s}
+.hint b{color:var(--ink)}
+
+/* 파쇄 헤드 */
+.head{position:absolute;left:10px;right:10px;top:388px;height:56px;background:#2A2B29;border-radius:10px;z-index:6;box-shadow:0 5px 0 #121211,0 8px 14px rgba(0,0,0,.35)}
+.head .mouth{position:absolute;left:44px;right:44px;top:12px;height:8px;background:#050505;border-radius:4px;box-shadow:inset 0 2px 3px #000,0 1px 0 rgba(255,255,255,.12)}
+.head .teeth{position:absolute;left:46px;right:46px;top:24px;height:8px;background:repeating-linear-gradient(90deg,#595a55 0 7px,#3a3b37 7px 10px);border-radius:2px;opacity:.9}
+.head.run .teeth{animation:teeth .12s linear infinite}
+@keyframes teeth{to{background-position:10px 0}}
+.head .lbl{position:absolute;left:14px;right:14px;bottom:6px;display:flex;justify-content:space-between;font:700 9px var(--sans);color:#8f8d87;letter-spacing:.06em}
+.head .led{position:absolute;right:16px;top:12px;width:8px;height:8px;border-radius:50%;background:#55534c}
+.head.run .led{background:#FF5A2A;box-shadow:0 0 8px #FF5A2A}
+.head .screw{position:absolute;top:12px;left:16px;width:9px;height:9px;border-radius:50%;background:#45463f;box-shadow:inset 0 1px 1px #000}
+
+/* 배출 영역 (슬롯 아래) */
+.out{position:absolute;left:0;right:0;top:416px;height:164px;overflow:hidden;z-index:4;pointer-events:none}
+.strip{position:absolute;left:50%;width:250px;margin-left:-125px;height:172px;background:var(--paper);padding:16px 18px;will-change:transform}
+.strip .h{display:flex;justify-content:space-between;font:700 10.5px var(--mono);color:#8a877f;border-bottom:1px dashed #c9c5ba;padding-bottom:7px}
+.strip .t{font:800 22px/1.38 var(--sans);letter-spacing:-.04em;color:var(--ink);margin-top:11px;max-height:92px;overflow:hidden}
+.strip .f{position:absolute;left:18px;right:18px;bottom:12px;display:flex;justify-content:space-between;font:700 10px var(--mono);color:#a29e94}
+.strip.fall{transition:transform .7s cubic-bezier(.5,0,.9,.6),opacity .7s}
+
+/* 통 */
+.bin{position:absolute;left:24px;right:24px;top:578px;height:74px;border-radius:0 0 10px 10px;z-index:5;overflow:hidden;
+  background:rgba(200,198,190,.35);box-shadow:inset 0 0 0 1.5px rgba(29,29,27,.25),inset 0 -2px 0 rgba(0,0,0,.08)}
+.bin::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:rgba(29,29,27,.25)}
+.bin .bit{position:absolute;bottom:0;width:3.5px;background:var(--paper);box-shadow:0 0 0 .5px rgba(0,0,0,.12);border-radius:1px}
+.bin .bit.ink{background:linear-gradient(var(--paper) 35%,#8d8b85 35% 41%,var(--paper) 41%)}
+.bin.empty .bit{transition:transform .6s cubic-bezier(.6,0,.9,.5),opacity .6s;transform:translateY(90px) rotate(30deg);opacity:0}
+.binlbl{position:absolute;left:24px;right:24px;top:656px;display:flex;justify-content:space-between;align-items:center;z-index:5}
+.odo{display:flex;gap:2px;background:#111;padding:3px;border-radius:4px;box-shadow:inset 0 2px 3px #000}
+.odo span{width:17px;height:24px;border-radius:2px;background:#262624;color:#F1EFE8;font:800 15px/24px var(--mono);text-align:center;position:relative;overflow:hidden}
+.odo span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#000}
+.odo span.r{animation:roll .6s cubic-bezier(.3,1.4,.5,1)}
+@keyframes roll{from{transform:translateY(-45%)}}
+
+/* 키 */
+.keys{position:absolute;left:18px;right:18px;bottom:22px;display:grid;grid-template-columns:1fr 2.2fr 1fr;gap:10px;height:64px;z-index:6}
+.key{all:unset;background:var(--body);border-radius:10px;box-shadow:0 4px 0 var(--edge),0 5px 8px rgba(0,0,0,.18);display:flex;flex-direction:column;justify-content:space-between;padding:9px 11px;font:700 14px var(--sans);letter-spacing:-.03em;cursor:pointer;transition:transform .06s,box-shadow .06s;position:relative}
+.key small{font:700 9px var(--sans);color:var(--ink2);letter-spacing:.03em}
+.key.blue{background:var(--blue);color:#fff;box-shadow:0 5px 0 var(--blue2),0 7px 12px rgba(30,40,160,.35)}
+.key.blue small{color:#c2cbff}
+.key.down{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+.key.blue.down{box-shadow:0 2px 0 var(--blue2)}
+.key[disabled]{opacity:.45;pointer-events:none}
+.key.alert{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 4px 0 var(--edge),0 0 0 4px rgba(46,75,240,.35)}}
+
+/* 파쇄 후 메시지 */
+.gone{position:absolute;left:0;right:0;top:250px;text-align:center;z-index:3;opacity:0;transition:opacity .4s;pointer-events:none}
+.gone b{display:block;font:800 26px var(--sans);letter-spacing:-.05em}
+.gone span{font:600 12.5px var(--sans);color:var(--ink2)}
+.gone.on{opacity:1}
+
+@media (prefers-reduced-motion:reduce){.phone.shake{animation:none}.head.run .teeth{animation:none}}
+</style>
+</head>
+<body>
+
+<aside class="note">
+  <div class="tag">우다다 · 재미 기능 01</div>
+  <h1>파쇄기</h1>
+  <p>"버리기" 칸에 넣은 것, 또는 그냥 머리에서 떨쳐 내고 싶은 생각을 카드에 적고 <b>손가락으로 밀어 넣는다.</b> 모터가 물고 들어가 갈아 버린다. 내용은 저장하지 않는다. <b>진짜로 사라진다.</b></p>
+  <h2>해 보기</h2>
+  <ul>
+    <li>카드를 눌러 생각을 적는다 (비우면 예시가 나옴)</li>
+    <li>카드를 <b>아래로 끌어</b> 슬롯에 밀어 넣는다. 반쯤 들어가면 모터가 알아서 문다</li>
+    <li>또는 파란 키를 <b>꾹 누르고 있기</b>. 떼면 멈춤</li>
+    <li>통이 차면 <b>비우기</b></li>
+    <li>키보드: <kbd>Space</kbd> 길게 = 갈기, <kbd>N</kbd> = 새 카드</li>
+  </ul>
+  <h2>근거</h2>
+  <ul>
+    <li>생각을 적은 종이를 찢어 버리면 그 생각을 판단에 덜 쓴다.<small>Briñol, Gascó, Petty &amp; Horcajo 2012 · Psychological Science · doi:10.1177/0956797612449176</small></li>
+    <li>화난 이유를 적은 종이를 쓰레기통·<b>파쇄기</b>에 버리면 분노가 원래대로 돌아왔다. 보관만 한 쪽은 안 그랬다.<small>Kanaya &amp; Kawai 2024 · Scientific Reports · doi:10.1038/s41598-024-57916-z</small></li>
+  </ul>
+  <h2>정직하게</h2>
+  <p>Briñol 연구에서 효과는 <b>상상보다 실제 몸으로 할 때 더 컸다</b>. 화면 속 파쇄가 종이만큼 효과 있는지는 검증된 적 없다. 그래서 손가락으로 밀기·모터 소리·진동·쌓이는 조각으로 최대한 '몸으로 하는' 느낌을 만들었고, 효과는 앞뒤 머리 온도로 따로 잰다.</p>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="sb"><span>9:41</span><span>●●●</span></div>
+  <div class="brand"><b>우다다<sub>UD-1 · 파쇄기</sub></b><div class="pwr"><span class="eng">모터</span><i id="pwr"></i></div></div>
+
+  <div class="lcd">
+    <div class="l1"><span id="lcdA">파쇄기 · 생각 버리기</span><span id="lcdB">대기</span></div>
+    <div class="l2" id="lcdMsg">카드를 아래로 밀어 넣어</div>
+    <div class="pbar"><i id="pbar"></i></div>
+  </div>
+
+  <div class="feed" id="feed">
+    <div class="card" id="card">
+      <div class="h"><span id="cardNo">버릴 생각 #001</span><span id="cardTime">21:04</span></div>
+      <div class="t" id="cardText" contenteditable="true" spellcheck="false"></div>
+      <div class="f"><span>저장 안 됨</span><span>복구 불가</span></div>
+    </div>
+    <div class="hint" id="hint">↓ <b>끌어서 밀어 넣기</b> · 또는 파란 키 꾹</div>
+  </div>
+  <div class="gone" id="gone"><b>갈았다.</b><span>이제 이건 머릿속에만 있을 이유가 없어</span></div>
+
+  <div class="head" id="head">
+    <i class="screw"></i><div class="mouth"></div><div class="teeth"></div><i class="led"></i>
+    <div class="lbl"><span>STRIP CUT · 12</span><span>생각 전용</span></div>
+  </div>
+
+  <div class="out" id="out"></div>
+  <div class="bin" id="bin"></div>
+  <div class="binlbl"><span class="eng" id="binTxt">통 0%</span><div style="display:flex;align-items:center;gap:8px"><span class="eng">버린 생각</span><div class="odo" id="odo"><span>0</span><span>0</span><span>0</span></div></div></div>
+
+  <div class="keys">
+    <button class="key" id="kNew"><small>NEW</small>새 카드</button>
+    <button class="key blue" id="kGo"><small>HOLD · 꾹 누르기</small>갈기</button>
+    <button class="key" id="kEmpty"><small>BIN</small>비우기</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const phone=$('phone'), card=$('card'), cardText=$('cardText'), out=$('out'), head=$('head'), bin=$('bin');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SAMPLES = ['교수님이 날 싫어하는 것 같음','그때 그 말 왜 했지','헬스 등록할까 말까 3주째','다들 나보다 잘 사는 것 같음','답장 늦게 했다고 화났으면 어떡하지','완벽하게 못 할 거면 시작도 하지 말자'];
+  const N = 12;                 // 세로 조각 수 (cross cut 12)
+  const CARD_H = 172, GAP = 22; // 카드 높이, 시작 위치에서 슬롯까지 틈
+  const FEED_H = 226;           // .feed 높이 (슬롯 = feed 바닥)
+  const OUT_EXTRA = 150;        // 슬롯 통과 후 더 내려가는 거리
+  const TOTAL = GAP + CARD_H + OUT_EXTRA;
+
+  let travel = 0, holding = false, auto = false, dragging = false, dragStartY = 0, dragStartTravel = 0;
+  let shredding = false, done = false, count = +(localStorage.getItem('udada.shred.count') || 0), binLevel = +(localStorage.getItem('udada.shred.bin') || 0);
+  let strips = [], sampleIdx = Math.floor(Math.random()*SAMPLES.length), lastT = 0;
+
+  // ---------- 소리 (WebAudio, 파일 없음) ----------
+  let ac, motorG, grindG, bp, osc, noiseSrc, tickTimer, vibTimer;
+  function audioInit(){
+    if (ac) return;
+    try {
+      ac = new (window.AudioContext||window.webkitAudioContext)();
+      const len = ac.sampleRate*2, buf = ac.createBuffer(1,len,ac.sampleRate), d = buf.getChannelData(0);
+      for (let i=0;i<len;i++) d[i] = Math.random()*2-1;
+      noiseSrc = ac.createBufferSource(); noiseSrc.buffer = buf; noiseSrc.loop = true;
+      bp = ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=260; bp.Q.value=.9;
+      grindG = ac.createGain(); grindG.gain.value = 0;
+      noiseSrc.connect(bp).connect(grindG).connect(ac.destination);
+      osc = ac.createOscillator(); osc.type='sawtooth'; osc.frequency.value=58;
+      const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=320;
+      motorG = ac.createGain(); motorG.gain.value = 0;
+      osc.connect(lp).connect(motorG).connect(ac.destination);
+      noiseSrc.start(); osc.start();
+    } catch(e){ ac = null; }
+  }
+  function motor(on){
+    $('pwr').classList.toggle('on',on); head.classList.toggle('run',on);
+    if (!ac) return; const t = ac.currentTime;
+    motorG.gain.cancelScheduledValues(t); motorG.gain.setTargetAtTime(on?.05:0, t, on?.04:.08);
+    osc.frequency.setTargetAtTime(on?62:40, t, .1);
+    if (!on) grinding(false);
+  }
+  let isGrinding = false;
+  function grinding(on){
+    if (on === isGrinding) return; isGrinding = on;
+    phone.classList.toggle('shake', on && !reduce);
+    clearInterval(tickTimer); clearInterval(vibTimer);
+    if (ac){ const t=ac.currentTime; grindG.gain.setTargetAtTime(on?.16:0,t,.03); bp.frequency.setTargetAtTime(on?950:260,t,.05); osc.frequency.setTargetAtTime(on?48:62,t,.06); }
+    if (on){
+      if (ac) tickTimer = setInterval(tick, 38);
+      if (navigator.vibrate) { navigator.vibrate(25); vibTimer = setInterval(()=>navigator.vibrate(25), 90); }
+    }
+  }
+  function tick(){ // 종이가 칼날에 씹히는 딱딱 소리
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type='square'; o.frequency.value = 1400 + Math.random()*1800;
+    g.gain.setValueAtTime(.05*Math.random(), t); g.gain.exponentialRampToValueAtTime(.0001, t+.025);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t+.03);
+  }
+  function thunk(){ if(!ac) return; const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(50,t+.15); g.gain.setValueAtTime(.25,t); g.gain.exponentialRampToValueAtTime(.001,t+.2); o.connect(g).connect(ac.destination); o.start(t); o.stop(t+.22); }
+
+  // ---------- 카드 ----------
+  function now(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function newCard(withText){
+    done=false; shredding=false; auto=false; travel=0;
+    out.innerHTML=''; strips=[];
+    $('gone').classList.remove('on');
+    cardText.textContent = withText ?? '';
+    $('cardNo').textContent = '버릴 생각 #' + String(count+1).padStart(3,'0');
+    $('cardTime').textContent = now();
+    card.style.display=''; $('hint').style.opacity=1;
+    if (binLevel>=10) lcd('통 가득','비우기를 눌러 줘'); else lcd('대기','카드를 아래로 밀어 넣어');
+    render();
+  }
+  function ensureText(){
+    if (!cardText.textContent.trim()){ cardText.textContent = SAMPLES[sampleIdx++ % SAMPLES.length]; }
+  }
+  function buildStrips(){
+    out.innerHTML=''; strips=[];
+    const w = 250/N;
+    for (let i=0;i<N;i++){
+      const s = document.createElement('div'); s.className='strip';
+      s.innerHTML = card.innerHTML.replace('contenteditable="true"','');
+      s.querySelector('.t').removeAttribute('contenteditable');
+      s.style.clipPath = `inset(0 ${250-(i+1)*w+.4}px 0 ${i*w+.4}px)`;
+      s._r = (Math.random()-.5); s._k = .6+Math.random()*.8; s._i = i;
+      out.appendChild(s); strips.push(s);
+    }
+  }
+
+  // ---------- 그리기 ----------
+  function render(){
+    const top = FEED_H - CARD_H - GAP + travel;   // feed 좌표계 카드 위쪽
+    card.style.transform = `translateY(${top}px)`;
+    card.style.top = '0px';
+    const below = top - FEED_H;                    // out 좌표계 (슬롯 = 0)
+    for (const s of strips){
+      const past = Math.max(0, travel - GAP);      // 슬롯을 지난 길이
+      const ang = s._r * Math.min(past,140)/140 * 11 * s._k;
+      const spread = (s._i-(N-1)/2) * Math.min(past,140)/140 * 3.6 + s._r*Math.min(past,140)/140*6;
+      const sag = s._k * Math.min(past,140)/140 * 10;
+      s.style.transformOrigin = `50% ${-below}px`;
+      s.style.transform = `translate(${spread}px, ${below + 6 + sag}px) rotate(${ang}deg)`;
+    }
+    const p = Math.min(1, travel/(GAP+CARD_H));
+    $('pbar').style.width = (p*100).toFixed(1)+'%';
+    $('hint').style.opacity = travel>4 ? 0 : 1;
+  }
+  function lcd(state,msg){ $('lcdB').textContent=state; $('lcdMsg').textContent=msg; }
+
+  // ---------- 진행 ----------
+  function startShred(){
+    if (done) return;
+    audioInit(); if (ac && ac.state==='suspended') ac.resume();
+    if (!shredding){ ensureText(); cardText.blur(); buildStrips(); shredding = true; }
+    motor(true);
+  }
+  function loop(t){
+    const dt = Math.min(.05, (t-lastT)/1000 || 0); lastT = t;
+    if (!done && !dragging && (holding || auto)){
+      travel += (auto ? 210 : 170) * dt;
+      if (travel >= TOTAL) finish();
+    }
+    if (shredding && !done){
+      const inMouth = travel > GAP && travel < GAP+CARD_H;
+      grinding(inMouth && (holding || auto || dragging));
+      const moving = holding || auto || dragging;
+      if (inMouth && moving) lcd('파쇄 중', Math.round((travel-GAP)/CARD_H*100)+'% · 갈리는 중');
+      else if (inMouth) lcd('멈춤', Math.round((travel-GAP)/CARD_H*100)+'% · 다시 누르면 이어서');
+      else if (travel>=GAP+CARD_H) lcd('배출', '조각 떨어지는 중');
+      // 절반쯤 물리면 모터가 알아서 끝까지 문다
+      if (!auto && travel > GAP + CARD_H*.45) { auto = true; }
+      render();
+    }
+    requestAnimationFrame(loop);
+  }
+  function finish(){
+    done = true; auto=false; grinding(false);
+    setTimeout(()=>motor(false), 250);
+    card.style.display='none';
+    // 조각이 통으로 떨어짐
+    strips.forEach((s,i)=>{
+      s.classList.add('fall');
+      const cur = s.style.transform;
+      requestAnimationFrame(()=>{ s.style.transform = cur + ` translateY(${120+Math.random()*60}px) rotate(${(Math.random()-.5)*40}deg)`; s.style.opacity = 0; });
+    });
+    setTimeout(()=>{ addBits(); thunk(); }, 380);
+    count++; localStorage.setItem('udada.shred.count', count); setOdo(true);
+    lcd('완료','갈았음 · 내용은 저장 안 됨');
+    setTimeout(()=>$('gone').classList.add('on'), 450);
+    setTimeout(()=>{ out.innerHTML=''; strips=[]; }, 900);
+  }
+
+  // ---------- 통 ----------
+  function addBits(n=26){
+    binLevel = Math.min(10, binLevel+1); localStorage.setItem('udada.shred.bin', binLevel);
+    drawBits(n, true);
+  }
+  function drawBits(n, fresh){
+    const W = bin.clientWidth || 312;
+    for (let i=0;i<n;i++){
+      const b = document.createElement('i'); b.className = 'bit' + (Math.random()<.35?' ink':'');
+      const h = 10 + Math.random()*22;
+      const baseBottom = (binLevel-1) * 6 + Math.random()*8 - 4;
+      b.style.height = h+'px';
+      b.style.left = (Math.random()*(W-6))+'px';
+      b.style.bottom = Math.max(-8, baseBottom)+'px';
+      b.style.transform = `rotate(${(Math.random()-.5)*170}deg)`;
+      if (fresh && !reduce){ b.animate([{transform:`translateY(-90px) rotate(0deg)`,opacity:.2},{transform:b.style.transform,opacity:1}],{duration:380+Math.random()*260,easing:'cubic-bezier(.4,0,.8,.6)'}); }
+      bin.appendChild(b);
+    }
+    updateBin();
+  }
+  function updateBin(){
+    const pct = binLevel*10;
+    $('binTxt').textContent = binLevel>=10 ? '통 꽉 참 · 비워 줘' : `통 ${pct}%`;
+    $('kEmpty').classList.toggle('alert', binLevel>=8);
+    $('kEmpty').disabled = binLevel===0;
+    $('kGo').disabled = binLevel>=10;
+    if (binLevel>=10 && !shredding) lcd('통 가득','비우기를 눌러 줘');
+  }
+  function emptyBin(){
+    if (!binLevel) return;
+    bin.classList.add('empty'); thunk();
+    if (navigator.vibrate) navigator.vibrate([40,30,60]);
+    setTimeout(()=>{ bin.innerHTML=''; bin.classList.remove('empty'); binLevel=0; localStorage.setItem('udada.shred.bin',0); updateBin(); lcd('대기','통 비움 · 개운'); }, 650);
+  }
+  function setOdo(anim){
+    const s = String(count%1000).padStart(3,'0'), spans = $('odo').children;
+    for (let i=0;i<3;i++){ if (spans[i].textContent!==s[i]){ spans[i].textContent=s[i]; if(anim){ spans[i].classList.remove('r'); void spans[i].offsetWidth; spans[i].classList.add('r'); } } }
+  }
+
+  // ---------- 입력 ----------
+  // 카드 끌기 (아래로만)
+  card.addEventListener('pointerdown', e => {
+    if (done) return;
+    if (e.target === cardText && travel===0 && !shredding) return; // 글쓰기 우선
+    dragging = true; card.classList.add('drag'); dragStartY = e.clientY; dragStartTravel = travel;
+    card.setPointerCapture(e.pointerId); startShred();
+  });
+  card.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    travel = Math.max(dragStartTravel, Math.min(TOTAL-1, dragStartTravel + (e.clientY - dragStartY)));
+    render();
+  });
+  const endDrag = () => { if(!dragging) return; dragging=false; card.classList.remove('drag');
+    if (travel < GAP+4 && !auto){ motor(false); travel=0; shredding=false; out.innerHTML=''; strips=[]; render(); lcd('대기','조금 더 밀어 넣어'); } };
+  card.addEventListener('pointerup', endDrag); card.addEventListener('pointercancel', endDrag);
+  // 글 쓰다가 아래로 끌어도 되게: 카드 머리/바닥 부분도 손잡이
+  cardText.addEventListener('keydown', e => { if (e.key==='Enter'){ e.preventDefault(); cardText.blur(); } e.stopPropagation(); });
+
+  // 꾹 누르기
+  const go = $('kGo');
+  const press = e => { e.preventDefault(); if(done) newCard(); holding = true; go.classList.add('down'); startShred(); };
+  const release = () => { if(!holding) return; holding = false; go.classList.remove('down'); if(!auto && !done){ motor(false); if (shredding) lcd('멈춤','다시 누르면 이어서'); } };
+  go.addEventListener('pointerdown', press); go.addEventListener('pointerup', release); go.addEventListener('pointerleave', release); go.addEventListener('pointercancel', release);
+  $('kNew').addEventListener('click', () => { if (shredding && !done) return; newCard(); setTimeout(()=>cardText.focus(),50); });
+  $('kEmpty').addEventListener('click', emptyBin);
+  for (const k of document.querySelectorAll('.key')){ k.addEventListener('pointerdown',()=>k.classList.add('down')); k.addEventListener('pointerup',()=>{ if(k!==go) k.classList.remove('down'); }); k.addEventListener('pointerleave',()=>{ if(k!==go) k.classList.remove('down'); }); }
+
+  document.addEventListener('keydown', e => {
+    if (document.activeElement === cardText) return;
+    if (e.code==='Space' && !e.repeat){ e.preventDefault(); if(binLevel<10) press(e); }
+    if (e.key==='n' || e.key==='N'){ if (!shredding || done) newCard(); }
+  });
+  document.addEventListener('keyup', e => { if (e.code==='Space') release(); });
+
+  // 시작
+  setOdo(false);
+  if (binLevel) { const lv=binLevel; for (let l=1;l<=lv;l++){ binLevel=l; drawBits(26,false); } }
+  updateBin(); newCard();
+  // ?demo=0.6 → 그 지점까지 갈린 상태로 멈춰 보여 줌 (스크린샷용)
+  const demo = new URLSearchParams(location.search).get('demo');
+  if (demo){ ensureText(); buildStrips(); shredding=true; travel = parseFloat(demo)*TOTAL; head.classList.add('run'); $('pwr').classList.add('on');
+    if (!binLevel){ for (let l=1;l<=4;l++){ binLevel=l; drawBits(26,false);} count=Math.max(count,7); setOdo(false); updateBin(); }
+    render(); lcd('파쇄 중', Math.round(Math.min(1,(travel-GAP)/CARD_H)*100)+'% · 갈리는 중'); }
+  else requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

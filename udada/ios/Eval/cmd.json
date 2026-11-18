@@ -1,0 +1,283 @@
+[
+ {
+  "cmd": "치과 내일로 미루고 보고서 초안은 끝냈어, 금요일 3시에 미팅 추가해 줘",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "치과",
+    "dayOffset": 1
+   },
+   {
+    "kind": "done",
+    "target": "보고서 초안"
+   },
+   {
+    "kind": "add",
+    "has": [
+     "금요일",
+     "미팅"
+    ]
+   }
+  ]
+ },
+ {
+  "cmd": "메일 답장 했어",
+  "expect": [
+   {
+    "kind": "done",
+    "target": "메일 답장"
+   }
+  ]
+ },
+ {
+  "cmd": "택배 보내기 지워 줘",
+  "expect": [
+   {
+    "kind": "delete",
+    "target": "택배 보내기"
+   }
+  ]
+ },
+ {
+  "cmd": "장보기는 수요일로 옮겨 줘",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "장보기",
+    "dayOffset": 2
+   }
+  ]
+ },
+ {
+  "cmd": "저녁 약속 8시로 바꿔 줘",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "저녁 약속",
+    "dayOffset": 0,
+    "time": 1200
+   }
+  ]
+ },
+ {
+  "cmd": "빨래 개기는 나중에 하는 걸로 미뤄",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "빨래 개기",
+    "later": true
+   }
+  ]
+ },
+ {
+  "cmd": "여권 갱신 이번 주 금요일로 잡아 줘",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "여권 갱신",
+    "dayOffset": 4
+   }
+  ]
+ },
+ {
+  "cmd": "물 한 잔 마셨어 그리고 메일 답장도 끝냈어",
+  "expect": [
+   {
+    "kind": "done",
+    "target": "물 한 잔"
+   },
+   {
+    "kind": "done",
+    "target": "메일 답장"
+   }
+  ]
+ },
+ {
+  "cmd": "치과 취소됐어 지워 줘, 대신 다음 주 월요일 2시에 치과 넣어 줘",
+  "expect": [
+   {
+    "kind": "delete",
+    "target": "치과"
+   },
+   {
+    "kind": "add",
+    "has": [
+     "치과"
+    ]
+   }
+  ]
+ },
+ {
+  "cmd": "보고서 초안 미뤄 줘",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "보고서 초안",
+    "dayOffset": 1
+   }
+  ]
+ },
+ {
+  "cmd": "팀 회의 끝났어, 택배도 보냈어",
+  "expect": [
+   {
+    "kind": "done",
+    "target": "팀 회의"
+   },
+   {
+    "kind": "done",
+    "target": "택배 보내기"
+   }
+  ]
+ },
+ {
+  "cmd": "책장 정리 그냥 안 할래 지워",
+  "expect": [
+   {
+    "kind": "delete",
+    "target": "책장 정리"
+   }
+  ]
+ },
+ {
+  "cmd": "내일 오전 9시 병원 예약 추가",
+  "expect": [
+   {
+    "kind": "add",
+    "has": [
+     "병원"
+    ]
+   }
+  ]
+ },
+ {
+  "cmd": "장보기 오늘 저녁으로 당겨 줘",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "장보기",
+    "dayOffset": 0
+   }
+  ]
+ },
+ {
+  "cmd": "저녁 약속 내일 같은 시간으로 옮기고 빨래 개기는 완료",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "저녁 약속",
+    "dayOffset": 1
+   },
+   {
+    "kind": "done",
+    "target": "빨래 개기"
+   }
+  ]
+ },
+ {
+  "cmd": "우유 사기 넣어 줘 그리고 메일 답장은 내일로",
+  "expect": [
+   {
+    "kind": "add",
+    "has": [
+     "우유"
+    ]
+   },
+   {
+    "kind": "move",
+    "target": "메일 답장",
+    "dayOffset": 1
+   }
+  ]
+ },
+ {
+  "cmd": "치과 다녀왔어",
+  "expect": [
+   {
+    "kind": "done",
+    "target": "치과"
+   }
+  ]
+ },
+ {
+  "cmd": "택배 보내기랑 빨래 개기 둘 다 끝냈어",
+  "expect": [
+   {
+    "kind": "done",
+    "target": "택배 보내기"
+   },
+   {
+    "kind": "done",
+    "target": "빨래 개기"
+   }
+  ]
+ },
+ {
+  "cmd": "보고서 초안 목요일 오후로 변경",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "보고서 초안",
+    "dayOffset": 3
+   }
+  ]
+ },
+ {
+  "cmd": "여권 갱신 삭제하고 책장 정리는 토요일로",
+  "expect": [
+   {
+    "kind": "delete",
+    "target": "여권 갱신"
+   },
+   {
+    "kind": "move",
+    "target": "책장 정리",
+    "dayOffset": 5
+   }
+  ]
+ },
+ {
+  "cmd": "팀 회의 11시로 연기",
+  "expect": [
+   {
+    "kind": "move",
+    "target": "팀 회의",
+    "dayOffset": 0,
+    "time": 660
+   }
+  ]
+ },
+ {
+  "cmd": "수영 강습 취소해 줘",
+  "expect": []
+ },
+ {
+  "cmd": "금요일까지 기획서 제출, 그리고 장보기 했어",
+  "expect": [
+   {
+    "kind": "add",
+    "has": [
+     "기획서"
+    ]
+   },
+   {
+    "kind": "done",
+    "target": "장보기"
+   }
+  ]
+ },
+ {
+  "cmd": "메일 답장 지우고 치과는 모레로 미뤄 줘",
+  "expect": [
+   {
+    "kind": "delete",
+    "target": "메일 답장"
+   },
+   {
+    "kind": "move",
+    "target": "치과",
+    "dayOffset": 2
+   }
+  ]
+ }
+]

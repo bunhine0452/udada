@@ -1,0 +1,165 @@
+[
+ {
+  "q": "이번 주에 미용실 가는 날이 언제야",
+  "words": [
+   "미용실"
+  ],
+  "span": "thisWeek",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "지난달에 독서 몇 번 했지",
+  "words": [
+   "독서"
+  ],
+  "span": "lastMonth",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "내일 뭐 해야 돼",
+  "words": [],
+  "span": "tomorrow",
+  "state": "open",
+  "kind": "any"
+ },
+ {
+  "q": "다음 주 일정 알려 줘",
+  "words": [],
+  "span": "nextWeek",
+  "state": "any",
+  "kind": "event"
+ },
+ {
+  "q": "자동차 검사 받은 게 언제였더라",
+  "words": [
+   "자동차",
+   "검사"
+  ],
+  "span": "past",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "요새 무슨 걱정 했었지",
+  "words": [],
+  "span": "any",
+  "state": "any",
+  "kind": "worry"
+ },
+ {
+  "q": "언젠가 하겠다고 한 것들",
+  "words": [],
+  "span": "any",
+  "state": "any",
+  "kind": "later"
+ },
+ {
+  "q": "오늘 저녁에 약속 있나",
+  "words": [],
+  "span": "today",
+  "state": "any",
+  "kind": "event"
+ },
+ {
+  "q": "이번 달에 다 한 청소",
+  "words": [
+   "청소"
+  ],
+  "span": "thisMonth",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "어제 끝낸 거 뭐였지",
+  "words": [],
+  "span": "yesterday",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "카드값 이체 했던가",
+  "words": [
+   "카드값"
+  ],
+  "span": "past",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "고양이 병원 예약 잡아 놨나",
+  "words": [
+   "고양이",
+   "병원"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "이번 주에 밀린 일",
+  "words": [],
+  "span": "thisWeek",
+  "state": "open",
+  "kind": "any"
+ },
+ {
+  "q": "지난주에 뭐 했더라",
+  "words": [],
+  "span": "lastWeek",
+  "state": "done",
+  "kind": "any"
+ },
+ {
+  "q": "부모님 관련해서 적은 거 다 보여 줘",
+  "words": [
+   "부모님"
+  ],
+  "span": "any",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "다가오는 치과 예약",
+  "words": [
+   "치과"
+  ],
+  "span": "upcoming",
+  "state": "any",
+  "kind": "event"
+ },
+ {
+  "q": "영어 공부 지난주에 몇 번",
+  "words": [
+   "영어",
+   "공부"
+  ],
+  "span": "lastWeek",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "오늘 아직 못 한 것",
+  "words": [],
+  "span": "today",
+  "state": "open",
+  "kind": "any"
+ },
+ {
+  "q": "발표 준비 언제까지였지",
+  "words": [
+   "발표"
+  ],
+  "span": "past",
+  "state": "any",
+  "kind": "any"
+ },
+ {
+  "q": "내일 아침에 뭐 있어",
+  "words": [],
+  "span": "tomorrow",
+  "state": "any",
+  "kind": "any"
+ }
+]

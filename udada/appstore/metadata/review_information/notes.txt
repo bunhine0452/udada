@@ -1,0 +1,44 @@
+Thank you for reviewing Udada (우다다). The app UI is Korean only.
+
+NO ACCOUNT, NO THIRD-PARTY NETWORK
+No sign-in is required. The app has no ads, analytics or tracking, no in-app purchases, and never contacts a developer server. Data is stored on the device (app group container shared with the widget extension).
+
+ICLOUD SYNC (iPhone <-> Mac)
+If the user is signed in to iCloud, tasks and logs sync through the user's own private CloudKit database (container iCloud.io.github.bunhine0452.udada) so the same data appears in Udada on their other devices. The developer cannot read it. It can be turned off in 기록 tab -> gear -> "iPhone · Mac" -> "Mac 과 맞추기". Without iCloud the app works fully on the device. The background mode "remote-notification" is used only for silent CloudKit change notifications.
+
+TEST DATA
+- On first launch, tap "예시로 채워서 둘러보기" (fill with an example day) on the intro.
+- Or anytime: 기록 tab (4th tab) → gear icon (top right) → 데이터 → "예시로 채워 보기". This replaces today's items with a sample day and can be undone from the toast.
+
+MAIN FLOWS
+- 오늘 tab: the day is split into 아침/낮/저녁 (morning/afternoon/evening). The blue "지금" card shows time until the next appointment; "시작" starts a focus session.
+- Bottom input line: type e.g. "내일 3시 치과" (dentist tomorrow 3pm) to see the parsed preview, then "넣기" (add).
+- 비우기 tab → "쓰면서 쏟아내기" → "예시" fills a sample brain dump → "정리하기" sorts it card by card.
+- "식히기" button (bottom right) → 1분/3분/10분 rest timers.
+- 하루 닫기 (close the day): the "하루 닫기" button at the end of the 저녁 (evening) band on 오늘 when items are left, or the 하루 닫기 shortcut. Choosing 내일/나중에/안 해 for each item ends with a "오늘 끝" stamp.
+
+WIDGETS AND SYSTEM FEATURES
+- Home Screen: long-press → Edit → Add Widget → search "우다다" → "오늘" (small/medium/large). Checkboxes in widgets complete tasks (App Intents).
+- Lock Screen: customize → add "지금" widget.
+- Live Activity / Dynamic Island: start 식히기 (rest) or 집중 (focus via "시작"), then lock the device.
+- Control Center: Edit → Add a Control → 우다다 → "1분 숨", "적기", "쏟아내기".
+- Focus filter: Settings → Focus → choose a Focus → Add Filter → 우다다 ("우다다 알림 줄이기").
+- Spotlight: search a task title.
+
+SIRI AND SHORTCUTS
+Siri phrases are Korean (set Siri language to Korean): "우다다에 적어 줘", "우다다 지금 뭐 해", "우다다 오늘 할 일", "우다다 하루 닫기", "우다다로 식히기", "우다다 쏟아내기". All actions are also listed in the Shortcuts app under 우다다.
+
+OPTIONAL SHORT-VIDEO PAUSE
+"숏폼 앞에 잠깐" is opt-in. The user creates a Shortcuts automation (App → Is Opened → choose apps → run 우다다 "숏폼 앞에 잠깐"). Udada then shows one next task with a "그냥 갈래" (continue anyway) button. It does not block or monitor other apps.
+
+ON-DEVICE AI (APPLE INTELLIGENCE)
+The intro (4th page) and an "Apple Intelligence" badge tell the user when Apple's on-device model produced a result. Brain-dump sorting, first-step suggestions and worry triage use Apple's Foundation Models framework on devices that support Apple Intelligence (iOS 26+, Apple Intelligence on, Korean supported). On other devices, or if turned off in Settings → Apple Intelligence, a rule-based fallback runs the same flow. No text leaves the device.
+
+PERMISSIONS (all optional, requested in context)
+- Calendar (full access, read only): shows device calendar events in the day view. The app never creates, edits or deletes events.
+- Notifications: local notifications only.
+- Microphone + Speech Recognition: voice brain dump. Audio is not stored. On-device recognition is used when available; otherwise Apple's speech service is used and the app shows a notice.
+- Camera / photo picker: scan a handwritten list; text is recognized on device with Vision and the photo is not stored.
+
+SAFETY
+This is a planning tool, not a medical app. It shows Korean crisis hotlines (109 Suicide Prevention, 1577-0199 Mental Health Crisis) in Settings and when a brain-dump line contains crisis words. It gives no medical advice.
